@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+<head>
+    <title>Результаты</title>
+</head>
+<body>
+<div class="w3-container">
+    <h2>Результаты проверки сертификата</h2>
+    <table class="w3-table-all w3-card-4">
+        <tr>
+            <th>Параметер</th>
+            <th>Значение</th>
+        </tr>
+        <tr>
+            <td>Номер сертификата</td>
+            <td th:text="${id}"></td>
+        </tr>
+        <tr>
+            <td>Марка</td>
+            <td th:text="${mark}"></td>
+        </tr>
+        <tr>
+            <td>Диаметер</td>
+            <td th:text="${diameter}"></td>
+        </tr>
+        <tr>
+            <td>Номер плавки</td>
+            <td th:text="${plav}"></td>
+        </tr><tr>
+            <td>Номер партии</td>
+            <td th:text="${part}"></td>
+        </tr>
+        <tr>
+            <td>Вес</td>
+            <td th:text="${weight}"></td>
+        </tr>
+        <tr>
+            <td>Покупатель</td>
+            <td th:text="${customer}"><img src="/assets/img/reg16.png"></td>
+        </tr>
+        </table>
+    </div>
+<img src="https://i.ibb.co/KVJXYW6/reg16.png" alt="reg16" class="m-auto">
+</body>
+</html>

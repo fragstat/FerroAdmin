@@ -15,7 +15,7 @@
         <p class="text mb-0" th:text="${el.email}"></p>
         <p th:text="'Отправлено: ' + ${el.date}"></p>
         <a th:href="'/admin'" class="btn btn-outline-warning mr-3 ">К списку</a>
-        <a th:href="'/admin/request/' + ${el.id} + '/remove'" class="btn btn btn-outline-danger">Удалить</a>
+        <a th:href="'/admin/requests/' + ${el.id} + '/remove'" class="btn btn btn-outline-danger">Удалить</a>
     </div>
 </div>
 <div class="text-muted" th:insert="blocks/footer :: footer">
