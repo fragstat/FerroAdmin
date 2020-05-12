@@ -2,10 +2,12 @@ package arsenal.metiz.AresenalMetiz;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -16,9 +18,10 @@ import org.springframework.security.provisioning.InMemoryUserDetailsManager;
     public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         @Override
         protected void configure(HttpSecurity http) throws Exception {
-            http
+            http.csrf().disable()
                     .authorizeRequests()
-                        .antMatchers("/", "/products","/index", "/static/**").permitAll()
+                        .antMatchers(HttpMethod.POST,"/", "/**", "/products","/index", "/static/**","/action/**").permitAll()
+                        .antMatchers(HttpMethod.GET,"/", "/products","/index", "/static/**","/action/**").permitAll()
                         .anyRequest().authenticated()
                     .and()
                         .formLogin()
@@ -42,7 +45,7 @@ import org.springframework.security.provisioning.InMemoryUserDetailsManager;
                     User.withDefaultPasswordEncoder()
                             .username("user")
                             .password("password")
-                            .roles("USER")
+                            .roles("ADMIN")
                             .build();
 
             return new InMemoryUserDetailsManager(user);
