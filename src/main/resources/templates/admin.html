@@ -11,11 +11,19 @@
 
 <div class="container mt-5">
     <h1>Запросы</h1>
+    <h1>Активные запросы</h1>
     <div th:each="el : ${req}" class="alert alert-info mt-2">
         <h3 th:text="${el.name}"></h3>
         <h4 th:text="${el.email}"></h4>
         <p th:text="${el.request}"></p>
         <a th:href="'/admin/requests/' + ${el.id}" class="btn btn-warning">Детальнее</a>
+    </div>
+    <h2>Архивированые запросы</h2>
+    <div th:each="el : ${reqA}" class="alert alert-info mt-2">
+        <h3 th:text="${el.name}"></h3>
+        <h4 th:text="${el.email}"></h4>
+        <p th:text="${el.request}"></p>
+        <a th:href="'/admin/requestsA/' + ${el.id}" class="btn btn-warning">Детальнее</a>
     </div>
 </div>
 <div class="text-muted" th:insert="blocks/footer :: footer"></div>

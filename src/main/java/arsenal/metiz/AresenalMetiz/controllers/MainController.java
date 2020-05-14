@@ -1,7 +1,9 @@
 package arsenal.metiz.AresenalMetiz.controllers;
 
+import arsenal.metiz.AresenalMetiz.models.ArchivedRequests;
 import arsenal.metiz.AresenalMetiz.models.Database;
 import arsenal.metiz.AresenalMetiz.models.Request;
+import arsenal.metiz.AresenalMetiz.repo.ArchivedRequestsRepo;
 import arsenal.metiz.AresenalMetiz.repo.RequestRepository;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -20,9 +22,11 @@ import java.text.SimpleDateFormat;
 public class MainController {
 
     private final RequestRepository requestRepository;
+    private final ArchivedRequestsRepo archivedRequestsRepo;
 
-    public MainController(RequestRepository requestRepository) {
+    public MainController(RequestRepository requestRepository, ArchivedRequestsRepo archivedRequestsRepo) {
         this.requestRepository = requestRepository;
+        this.archivedRequestsRepo = archivedRequestsRepo;
     }
 
     @GetMapping("/login")
@@ -90,7 +94,14 @@ public class MainController {
             Map<String,Object> map = database.getDocumentAsMap(code);
 
             if (map != null && map.get("id").equals("Неверный код")) {
-                return "index";
+                model.addAttribute("id", "Неверный код");
+                model.addAttribute("mark", "-");
+                model.addAttribute("part", "-");
+                model.addAttribute("plav","-");
+                model.addAttribute("weight", "-");
+                model.addAttribute("diameter", "-");
+                model.addAttribute("customer", "-");
+                model.addAttribute("src", "https://pk-izhsintez.ru/upload/iblock/ba6/ba6495b4efc9e3d9ae6d7fd2a36b4874.png");
             }else {
                 assert map != null;
                 model.addAttribute("id", map.get("id"));
@@ -100,6 +111,7 @@ public class MainController {
                 model.addAttribute("weight", map.get("weight"));
                 model.addAttribute("diameter", map.get("diameter"));
                 model.addAttribute("customer", map.get("customer"));
+                model.addAttribute("src", "https://i.yapx.ru/GU705t.png");
             }
 
         } catch (Exception e) {
@@ -112,6 +124,11 @@ public class MainController {
 
     @GetMapping("/admin/requests/{id}/remove")
     public String requestRemove(@PathVariable("id") long id, Model model) {
+        Optional<Request> request = requestRepository.findById(id);
+        ArrayList<Request> req = new ArrayList<>();
+        request.ifPresent(req::add);
+        ArchivedRequests archivedRequests = new ArchivedRequests(req.get(0).getName(),req.get(0).getEmail(),req.get(0).getRequest(),req.get(0).getDate());
+        archivedRequestsRepo.save(archivedRequests);
         requestRepository.deleteById(id);
         return "redirect:/admin";
     }
@@ -120,6 +137,8 @@ public class MainController {
     public String admin(Model model){
         Iterable<Request> requests = requestRepository.findAll();
         model.addAttribute("req",requests);
+        Iterable<ArchivedRequests> archivedRequests = archivedRequestsRepo.findAll();
+        model.addAttribute("reqA", archivedRequests);
         return "admin";
     }
 
@@ -131,6 +150,20 @@ public class MainController {
 
         Optional<Request> request = requestRepository.findById(id);
         ArrayList<Request> req = new ArrayList<>();
+        request.ifPresent(req::add);
+        model.addAttribute("request", req);
+        return "request-details";
+
+    }
+
+    @GetMapping("/admin/requestsA/{id}")
+    public String archivedRequestDetails(@PathVariable("id") long id, Model model) {
+        if (!archivedRequestsRepo.existsById(id)) {
+            return "admin";
+        }
+
+        Optional<ArchivedRequests> request = archivedRequestsRepo.findById(id);
+        ArrayList<ArchivedRequests> req = new ArrayList<>();
         request.ifPresent(req::add);
         model.addAttribute("request", req);
         return "request-details";
