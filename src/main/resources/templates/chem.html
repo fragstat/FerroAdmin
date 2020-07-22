@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org"
+      xmlns:sec="https://www.thymeleaf.org/thymeleaf-extras-springsecurity3">
+<head>
+    <title>Admin</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+</head>
+<body>
+<header th:insert="blocks/header :: header"></header>
+<table class="table table-dark">
+    <thead>
+    <tr>
+        <th scope="col">C</th>
+        <th scope="col">Si</th>
+        <th scope="col">Mn</th>
+        <th scope="col">Cr</th>
+        <th scope="col">Ni</th>
+        <th scope="col">Cu</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <th scope="row" th:text="${C}"></th>
+        <td th:text="${Si}"></td>
+        <td th:text="${Mn}"></td>
+        <td th:text="${Cr}"></td>
+        <td th:text="${Ni}"></td>
+        <td th:text="${Cu}"></td>
+    </tr>
+    </tbody>
+</table>
+<br>
+<div class="contact-clean m-4">
+<form method="post" action="/admin/chem">
+    <div class="form-group"><label>
+        <input class="form-control" type="text" name="OD" placeholder="Диаметер трубы" style="font-family: Montserrat, sans-serif;">
+    </label></div>
+    <div class="form-group"><label>
+        <input class="form-control" type="text" name="OT" placeholder="Толщина стенок трубы" style="font-family: Montserrat, sans-serif;" required="">
+    </label></div>
+    <div class="form-group"><label>
+        <input class="form-control" type="text" name="OC" placeholder="C (труба)" style="font-family: Montserrat, sans-serif;" required="">
+    </label></div>
+    <div class="form-group"><label>
+        <input class="form-control" type="text" name="OSi" placeholder="Si (труба)" style="font-family: Montserrat, sans-serif;" required="">
+    </label></div>
+    <div class="form-group"><label>
+        <input class="form-control" type="text" name="OMn" placeholder="Mn (труба)" style="font-family: Montserrat, sans-serif;" required="">
+    </label></div>
+    <div class="form-group"><label>
+        <input class="form-control" type="text" name="OCr" placeholder="Cr (труба)" style="font-family: Montserrat, sans-serif;" required="">
+    </label></div>
+    <div class="form-group"><label>
+        <input class="form-control" type="text" name="ONi" placeholder="Ni (труба)" style="font-family: Montserrat, sans-serif;" required="">
+    </label></div>
+    <div class="form-group"><label>
+        <input class="form-control" type="text" name="OCu" placeholder="Cu (труба)" style="font-family: Montserrat, sans-serif;" required="">
+    </label></div>
+    <div class="form-group"><label>
+        <input class="form-control" type="text" name="IC" placeholder="C (проволока)" style="font-family: Montserrat, sans-serif;" required="">
+    </label></div>
+    <div class="form-group"><label>
+        <input class="form-control" type="text" name="ISi" placeholder="Si (проволока)" style="font-family: Montserrat, sans-serif;" required="">
+    </label></div>
+    <div class="form-group"><label>
+        <input class="form-control" type="text" name="IMn" placeholder="Mn (проволока)" style="font-family: Montserrat, sans-serif;" required="">
+    </label></div>
+    <div class="form-group"><label>
+        <input class="form-control" type="text" name="ICr" placeholder="Cr (проволока)" style="font-family: Montserrat, sans-serif;" required="">
+    </label></div>
+    <div class="form-group"><label>
+        <input class="form-control" type="text" name="INi" placeholder="Ni (проволока)" style="font-family: Montserrat, sans-serif;" required="">
+    </label></div>
+    <div class="form-group"><label>
+        <input class="form-control" type="text" name="ICu" placeholder="Cu (проволока)" style="font-family: Montserrat, sans-serif;" required="">
+    </label></div>
+    <div class="form-group"><button class="btn btn-primary" type="submit">Рассчитать</button></div>
+</form>
+</div>
+<br><br>
+<div class="text-muted" th:insert="blocks/footer :: footer"></div>
+</body>
+</html>

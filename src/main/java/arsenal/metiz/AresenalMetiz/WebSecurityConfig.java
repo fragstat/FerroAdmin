@@ -21,7 +21,7 @@ import org.springframework.security.provisioning.InMemoryUserDetailsManager;
             http.csrf().disable()
                     .authorizeRequests()
                         .antMatchers(HttpMethod.POST,"/", "/**", "/products","/index", "/static/**","/action/**").permitAll()
-                        .antMatchers(HttpMethod.GET,"/", "/products","/index", "/static/**","/action/**").permitAll()
+                        .antMatchers(HttpMethod.GET,"/", "/products.html","/products","/index", "/static/**","/action/**").permitAll()
                         .anyRequest().authenticated()
                     .and()
                         .formLogin()
@@ -47,8 +47,15 @@ import org.springframework.security.provisioning.InMemoryUserDetailsManager;
                             .password("password")
                             .roles("ADMIN")
                             .build();
+            UserDetails user1 =
+                    User.withDefaultPasswordEncoder()
+                            .username("ekat")
+                            .password("12345678")
+                            .roles("USER")
+                            .build();
 
-            return new InMemoryUserDetailsManager(user);
+
+            return new InMemoryUserDetailsManager(user,user1);
         }
     }
 

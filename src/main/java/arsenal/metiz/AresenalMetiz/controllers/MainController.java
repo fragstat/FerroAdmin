@@ -5,14 +5,17 @@ import arsenal.metiz.AresenalMetiz.models.Database;
 import arsenal.metiz.AresenalMetiz.models.Request;
 import arsenal.metiz.AresenalMetiz.repo.ArchivedRequestsRepo;
 import arsenal.metiz.AresenalMetiz.repo.RequestRepository;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.net.URL;
 import java.util.*;
+import javax.imageio.ImageIO;
 import javax.mail.*;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
@@ -39,6 +42,11 @@ public class MainController {
         return "index";
     }
 
+    @GetMapping("/products")
+    public String ferroProd(Model model){
+        return "products";
+    }
+
     @PostMapping("/")
     public String ferroPost(@RequestParam String name,@RequestParam String email,@RequestParam String request, Model model){
         Date date = new Date();
@@ -46,7 +54,7 @@ public class MainController {
         Request req = new Request(name, email, request, simpleDateFormat.format(date));
         requestRepository.save(req);
 
-        String to = "sevalavin@edu.hse.ru";
+        String to = "info@arsenal-metiz.ru";
         String from = "serh.valavin@gmail.com";
         String host = "smtp.gmail.com";
 
@@ -169,5 +177,55 @@ public class MainController {
         return "request-details";
 
     }
+
+    @GetMapping(value = "/admin/qr",
+            produces = MediaType.IMAGE_PNG_VALUE
+    )
+    public @ResponseBody
+    byte[] downloadQr(Model model) throws IOException {
+        StringBuilder qr = new StringBuilder();
+        char[] al = "1234567890qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM".toCharArray();
+        for (int i = 0; i <= 14; i++) {
+            qr.append(al[(int) (Math.random() * al.length)]);
+        }
+        BufferedImage image = null;
+        URL url = new URL("https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=" + qr);
+        image = ImageIO.read(url);
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ImageIO.write(image, "png", baos);
+        byte[] res = baos.toByteArray();
+        return res;
+    }
+
+    @GetMapping("/admin/chem")
+    public String chem(Model model) {
+        model.addAttribute("C","-");
+        model.addAttribute("Si","-");
+        model.addAttribute("Mn","-");
+        model.addAttribute("Cr","-");
+        model.addAttribute("Ni","-");
+        model.addAttribute("Cu","-");
+        return "chem";
+    }
+
+    @PostMapping("/admin/chem")
+    public String chemPost(@RequestParam String OD, @RequestParam String OT, @RequestParam String OC,
+                           @RequestParam String OSi, @RequestParam String OMn,@RequestParam String OCr,
+                           @RequestParam String ONi, @RequestParam String OCu, @RequestParam String IC,
+                           @RequestParam String ISi, @RequestParam String IMn,@RequestParam String ICr,
+                           @RequestParam String INi, @RequestParam String ICu, Model model) throws IOException {
+        String[] inputs = {OD,OT,OC,OSi,OMn,OCr,ONi,OCu,IC,ISi,IMn,ICr,INi,ICu};
+        Map<String,Double> map = Composition.calculate(inputs);
+        model.addAttribute("C",map.get("C"));
+        model.addAttribute("Si",map.get("Si"));
+        model.addAttribute("Mn",map.get("Mn"));
+        model.addAttribute("Cr",map.get("Cr"));
+        model.addAttribute("Ni",map.get("Ni"));
+        model.addAttribute("Cu",map.get("Cu"));
+
+
+        return "chem";
+    }
+
 
 }
