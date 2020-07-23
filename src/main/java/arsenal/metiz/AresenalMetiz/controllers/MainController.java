@@ -2,8 +2,10 @@ package arsenal.metiz.AresenalMetiz.controllers;
 
 import arsenal.metiz.AresenalMetiz.models.ArchivedRequests;
 import arsenal.metiz.AresenalMetiz.models.Database;
+import arsenal.metiz.AresenalMetiz.models.Order;
 import arsenal.metiz.AresenalMetiz.models.Request;
 import arsenal.metiz.AresenalMetiz.repo.ArchivedRequestsRepo;
+import arsenal.metiz.AresenalMetiz.repo.OrdersRepository;
 import arsenal.metiz.AresenalMetiz.repo.RequestRepository;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
@@ -26,10 +28,18 @@ public class MainController {
 
     private final RequestRepository requestRepository;
     private final ArchivedRequestsRepo archivedRequestsRepo;
+    private final OrdersRepository ordersRepository;
 
-    public MainController(RequestRepository requestRepository, ArchivedRequestsRepo archivedRequestsRepo) {
+    public MainController(RequestRepository requestRepository, ArchivedRequestsRepo archivedRequestsRepo,
+                          OrdersRepository ordersRepository) {
         this.requestRepository = requestRepository;
         this.archivedRequestsRepo = archivedRequestsRepo;
+        this.ordersRepository = ordersRepository;
+    }
+
+    @GetMapping("/admin")
+    public String admin(Model model) {
+        return "admin";
     }
 
     @GetMapping("/login")
@@ -141,14 +151,37 @@ public class MainController {
         return "redirect:/admin";
     }
 
-    @GetMapping("/admin")
-    public String admin(Model model){
+    @GetMapping("/admin/requests")
+    public String requests(Model model){
         Iterable<Request> requests = requestRepository.findAll();
         model.addAttribute("req",requests);
         Iterable<ArchivedRequests> archivedRequests = archivedRequestsRepo.findAll();
         model.addAttribute("reqA", archivedRequests);
-        return "admin";
+        return "requests";
     }
+
+    @GetMapping("/admin/orders")
+    public String orders(Model model){
+        Iterable<Order> orders = ordersRepository.findAll();
+        model.addAttribute("ord",orders);
+        return "orders";
+    }
+
+    @GetMapping("/admin/orders/add")
+    public String addOrderGet(Model model){
+        return "addOrder";
+    }
+
+    @PostMapping("/admin/orders/add")
+    public String addOrderPost(@RequestParam String mark, @RequestParam String diameter,
+                               @RequestParam String packing, @RequestParam String mass,
+                               @RequestParam String date){
+        String massF = mass.replaceAll(",", ".");
+        Order order = new Order(mark, diameter, packing, date, Float.parseFloat(massF));
+        ordersRepository.save(order);
+        return "redirect:/admin/orders";
+    }
+
 
     @GetMapping("/admin/requests/{id}")
     public String requestDetails(@PathVariable("id") long id, Model model) {

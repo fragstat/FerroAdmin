@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org"
+      xmlns:sec="https://www.thymeleaf.org/thymeleaf-extras-springsecurity3">
+<head>
+    <title>Admin</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+</head>
+<body>
+<header th:insert="blocks/header :: header"></header>
+
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-8 order-md-1">
+            <h4 class="mb-3">Добавление заказа</h4>
+            <form class="needs-validation" novalidate="" method="post">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="mark">Марка</label>
+                        <input type="text" name="mark" class="form-control" id="mark" placeholder="" value="" required="">
+                        <div class="invalid-feedback">
+                            Введите марку.
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="diameter">Диаметер</label>
+                        <input type="text" name="diameter" class="form-control" id="diameter" placeholder="" value="" required="">
+                        <div class="invalid-feedback">
+                            Введите диаметер.
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="row">
+                    <div class="col-md-5 mb-3">
+                        <label for="packing">Упаковка</label>
+                        <select name="packing" class="custom-select d-block w-100" id="packing" required="">
+                            <option value="">Моток</option>
+                            <option>К300</option>
+                            <option>Д300</option>
+                            <option>К415</option>
+                            <option>Д415</option>
+                        </select>
+                        <div class="invalid-feedback">
+                            Выберете упаковку.
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label for="mass">Вес</label>
+                        <input type="text" name="mass" class="form-control" id="mass" placeholder="" required="">
+                        <div class="invalid-feedback">
+                            Введите массу.
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label for="date">Отгрузка до</label>
+                        <input type="text" name="date" class="form-control" id="date" placeholder="" required="">
+                        <div class="invalid-feedback">
+                            Введите дату.
+                        </div>
+                    </div>
+                </div>
+                <hr class="mb-4">
+                <button class="btn btn-primary btn-lg btn-block" type="submit">Оформить заказ</button>
+            </form>
+        </div>
+    </div>
+</div>
+<div class="text-muted" th:insert="blocks/footer :: footer"></div>
+</body>
+</html>

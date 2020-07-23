@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org"
+      xmlns:sec="https://www.thymeleaf.org/thymeleaf-extras-springsecurity3">
+<head>
+    <title>Заказы в производство</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+</head>
+<body>
+<header th:insert="blocks/header :: header"></header>
+
+<div class="container mt-5">
+    <h2>Запросы в производство</h2>
+    <a href="/admin/orders/add" class="btn btn-info">Добавить новый</a>
+    <div class="table-responsive">
+        <table class="table table-striped table-sm">
+            <thead>
+            <tr>
+                <th>№</th>
+                <th>Марка</th>
+                <th>Диаметер</th>
+                <th>Упаковка</th>
+                <th>Объём</th>
+                <th>Дата</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="o : ${ord}">
+                <th th:text="${o.id}"></th>
+                <th th:text="${o.mark}"></th>
+                <th th:text="${o.diameter}"></th>
+                <th th:text="${o.packing}"></th>
+                <th th:text="${o.mass}"></th>
+                <th th:text="${o.date}"></th>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+<div class="text-muted" th:insert="blocks/footer :: footer"></div>
+</body>
+</html>
