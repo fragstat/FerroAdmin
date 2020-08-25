@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org"
+>
+<head>
+    <title>Admin</title>
+    <meta content="text/html; charset=UTF-8" http-equiv="Content-Type"/>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+<header th:insert="blocks/header :: header"></header>
+
+<div class="container mt-5">
+    <form action="/admin/upload/check/save" method="post">
+        <div class="form-group">
+            <label for="qr">Код</label>
+            <input class="form-control" id="qr" name="qr" th:value="${ps.qr}" type="text">
+        </div>
+        <div class="form-group">
+            <label for="id">Номер сертификата</label>
+            <input class="form-control" id="id" name="id" th:value="${ps.id}" type="text">
+        </div>
+        <div class="form-group">
+            <label for="mark">Марка</label>
+            <input class="form-control" id="mark" name="mark" th:value="${ps.mark}" type="text">
+        </div>
+        <div class="form-group">
+            <label for="part">Номер партии</label>
+            <input class="form-control" id="part" name="part" th:value="${ps.part}" type="text">
+        </div>
+        <div class="form-group">
+            <label for="plav">Номер плавки</label>
+            <input class="form-control" id="plav" name="plav" th:value="${ps.plav}" type="text">
+        </div>
+        <div class="form-group">
+            <label for="diameter">Диаметр</label>
+            <input class="form-control" id="diameter" name="diameter" th:value="${ps.diameter}" type="text">
+        </div>
+        <div class="form-group">
+            <label for="weight">Вес</label>
+            <input class="form-control" id="weight" name="weight" th:value="${ps.weight}" type="text">
+        </div>
+        <div class="form-group">
+            <label for="customer">Грузополучатель</label>
+            <input class="form-control" id="customer" name="customer" th:value="${ps.customer}" type="text">
+        </div>
+
+
+        <button class="btn btn-primary" type="submit">Сохранить</button>
+    </form>
+</div>
+<div class="text-muted" th:insert="blocks/footer :: footer"></div>
+</body>
+</html>

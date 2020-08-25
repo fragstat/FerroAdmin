@@ -1,9 +1,7 @@
-package arsenal.metiz.AresenalMetiz.controllers;
+package arsenal.metiz.AresenalMetiz;
 
 
 import java.io.IOException;
-import java.text.DecimalFormat;
-import java.text.NumberFormat;
 import java.util.HashMap;
 import java.util.Map;
 

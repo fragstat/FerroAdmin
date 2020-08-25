@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org"
-      xmlns:sec="https://www.thymeleaf.org/thymeleaf-extras-springsecurity3">
+>
 <head>
     <title>Admin</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
@@ -10,6 +10,47 @@
 <header th:insert="blocks/header :: header"></header>
 
 <div class="container mt-5">
+    <h1 class="display-4" th:text="${greeting}"></h1>
+    <br>
+    <div class="card-deck">
+        <div class="card mx-auto" style="max-width: 340px; min-width: 300px">
+            <a class="text-dark" href="/admin/upload">
+                <!-- Изображение -->
+                <img alt="..." class="card-img"
+                     src="https://выкса.рф/uploads/posts/2019-08/1565179732_fountain-pen-1851096_1920.jpg">
+                <!-- Текстовый контент -->
+                <div class="card-img-overlay text-white">
+                    <h4 class="card-title">Регистрация сертификатов</h4>
+                    <br>
+                </div>
+            </a>
+        </div>
+        <div class="card mx-auto" style="max-width: 340px; min-width: 300px">
+            <a class="text-dark" href="/admin/chem">
+                <!-- Изображение -->
+                <img alt="..." class="card-img"
+                     src="https://icei-formacion.com/wp-content/uploads/2019/03/contabilidad.jpg">
+                <!-- Текстовый контент -->
+                <div class="card-img-overlay text-black">
+                    <h4 class="card-title">Рассчёт хим. состава</h4>
+                    <br>
+                </div>
+            </a>
+        </div>
+        <div class="card mx-auto" style="max-width: 340px; min-width: 300px">
+            <a class="text-dark" href="/admin/orders">
+                <!-- Изображение -->
+                <img alt="..." class="card-img"
+                     src="http://samara.aviastal.ru/Uploads/PhotoGalleryes/190/233/provoloka-kanatnaya-137.jpg">
+                <!-- Текстовый контент -->
+                <div class="card-img-overlay text-dark">
+                    <h4 class="card-title" style="">Заявки в производство</h4>
+                    <br>
+                </div>
+            </a>
+        </div>
+
+    </div>
 
 </div>
 <div class="text-muted" th:insert="blocks/footer :: footer"></div>

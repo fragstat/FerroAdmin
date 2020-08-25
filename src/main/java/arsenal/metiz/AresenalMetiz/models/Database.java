@@ -5,6 +5,7 @@ import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.firestore.DocumentReference;
 import com.google.cloud.firestore.DocumentSnapshot;
 import com.google.cloud.firestore.Firestore;
+import com.google.cloud.firestore.WriteResult;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
 import com.google.firebase.cloud.FirestoreClient;
@@ -45,7 +46,7 @@ public class Database {
 
     public Map<String, Object> getDocumentAsMap(String identifier) throws Exception {
         Firestore db = connect();
-        if (db != null){
+        if (db != null) {
             DocumentReference docRef = db.collection("certificates").document(identifier);
             // asynchronously retrieve the document
             ApiFuture<DocumentSnapshot> future = docRef.get();
@@ -53,13 +54,18 @@ public class Database {
             // future.get() blocks on response
             DocumentSnapshot document = future.get();
 
-            Map <String, Object> map = new HashMap<>();
-            map.put("id","Неверный код");
+            Map<String, Object> map = new HashMap<>();
+            map.put("id", "Неверный код");
 
-            return (document.exists()) ? document.getData() : map ;
-        }else {
+            return (document.exists()) ? document.getData() : map;
+        } else {
             return null;
         }
 
+    }
+
+    public void Upload(DBCertificate certificate, String qr) throws IOException {
+        Firestore db = connect();
+        ApiFuture<WriteResult> future = db.collection("certificates").document(qr).set(certificate);
     }
 }

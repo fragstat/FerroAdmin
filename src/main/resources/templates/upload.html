@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:sec="https://www.thymeleaf.org/thymeleaf-extras-springsecurity3"
+      xmlns:th="https://www.thymeleaf.org">
+<head>
+    <title>Admin</title>
+    <meta content="text/html; charset=UTF-8" http-equiv="Content-Type"/>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+<header th:insert="blocks/header :: header"></header>
+
+<div class="container mt-5">
+    <form action="/admin/upload" enctype="multipart/form-data" method="POST">
+        <div class="form-group">
+            <label for="file">Файл формата doc/x</label>
+            <input class="form-control-file" id="file" name="file" type="file">
+        </div>
+        <br><br>
+        <button class="btn btn-primary" type="submit">Загрузить</button>
+        <a class="btn btn-success" href="/admin/upload/random" sec:authorize="hasRole('ROLE_ADMIN')">Случайный
+            незарегестрированный</a>
+    </form>
+</div>
+<div class="text-muted" th:insert="blocks/footer :: footer"></div>
+</body>
+</html>
