@@ -1,6 +1,6 @@
 package arsenal.metiz.AresenalMetiz.controllers;
 
-import arsenal.metiz.AresenalMetiz.models.Database;
+import arsenal.metiz.AresenalMetiz.assets.Database;
 import arsenal.metiz.AresenalMetiz.repo.ArchivedRequestsRepo;
 import arsenal.metiz.AresenalMetiz.repo.OrdersRepository;
 import arsenal.metiz.AresenalMetiz.repo.RequestRepository;

@@ -22,7 +22,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         http.csrf().disable()
                 .authorizeRequests()
                 .antMatchers(HttpMethod.POST, "/", "/**", "/products", "/index", "/static/**", "/action/**").permitAll()
-                .antMatchers(HttpMethod.GET, "/", "/products.html", "/products", "/index", "/static/**", "/action/**").permitAll()
+                .antMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                .antMatchers(HttpMethod.GET, "/", "/products.html", "/products", "/resources/**", "/index", "/static/**", "/action/**", "/api/**").permitAll()
                 .anyRequest().authenticated()
                 .and()
                 .formLogin()
@@ -36,7 +37,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     public void configure(WebSecurity web) throws Exception {
-        web.ignoring().antMatchers("/css/**", "/js/**", "/assets/**", "/resources/public/**", "/public/**");
+        web.ignoring().antMatchers("/css/**", "/js/**", "/assets/**", "/resources/**", "/public/**");
     }
 
 //        @Bean
@@ -76,8 +77,13 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                         .password(encoder.encode("val130502"))
                         .roles("USER")
                         .build();
+        UserDetails nekita =
+                User.withUsername("nik")
+                        .password(encoder.encode("1234"))
+                        .roles("USER")
+                        .build();
 
-        return new InMemoryUserDetailsManager(serg, ekat, danil, ksenia, dir);
+        return new InMemoryUserDetailsManager(serg, ekat, danil, ksenia, dir, nekita);
     }
 }
 

@@ -1,7 +1,11 @@
 package arsenal.metiz.AresenalMetiz.controllers;
 
 import arsenal.metiz.AresenalMetiz.WordParsing;
-import arsenal.metiz.AresenalMetiz.models.*;
+import arsenal.metiz.AresenalMetiz.assets.Database;
+import arsenal.metiz.AresenalMetiz.models.AutoRegisteredCertificate;
+import arsenal.metiz.AresenalMetiz.models.DBCertificate;
+import arsenal.metiz.AresenalMetiz.models.Mark;
+import arsenal.metiz.AresenalMetiz.models.ParsedCertificate;
 import arsenal.metiz.AresenalMetiz.repo.AutoRegisteredCertificatesRepository;
 import arsenal.metiz.AresenalMetiz.repo.MarksRepository;
 import com.aspose.words.Document;
@@ -104,6 +108,7 @@ public class WordParsingController {
                         return "redirect:/admin/upload/check";
                     } else {
                         Database.getInstance().Upload(ps.getDBCertificate(), ps.getQr());
+                        System.out.println("Сертификат зарегестрирован автоматически!!");
                         autoRegisteredCertificatesRepository.save(new AutoRegisteredCertificate(ps.getId()));
                         f.renameTo(new File(REGISTERED + f.getName()));
                     }
@@ -120,6 +125,7 @@ public class WordParsingController {
                         return "redirect:/admin/upload/check";
                     } else {
                         Database.getInstance().Upload(ps.getDBCertificate(), ps.getQr());
+                        System.out.println("Сертификат зарегестрирован автоматически!!");
                         autoRegisteredCertificatesRepository.save(new AutoRegisteredCertificate(ps.getId()));
                         f.renameTo(new File(REGISTERED + f.getName()));
                     }
@@ -131,7 +137,7 @@ public class WordParsingController {
         return "redirect:/admin/upload";
     }
 
-    @PostMapping("/admin/upload")
+    @PostMapping("/admin/upload") // //new annotation since 4.3
     public String singleFileUpload(@RequestParam("file") MultipartFile file,
                                    RedirectAttributes redirectAttributes, Model model) {
 
@@ -160,6 +166,7 @@ public class WordParsingController {
                     return "redirect:/admin/upload/check";
                 } else {
                     Database.getInstance().Upload(ps.getDBCertificate(), ps.getQr());
+                    System.out.println("Сертификат зарегестрирован автоматически!!");
                     autoRegisteredCertificatesRepository.save(new AutoRegisteredCertificate(ps.getId()));
                     fileW.renameTo(new File(REGISTERED + file.getName()));
                     return "redirect:/admin/upload";

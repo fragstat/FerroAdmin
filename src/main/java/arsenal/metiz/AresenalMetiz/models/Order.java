@@ -1,8 +1,6 @@
 package arsenal.metiz.AresenalMetiz.models;
 
 import javax.persistence.*;
-import java.awt.geom.FlatteningPathIterator;
-import java.util.Date;
 
 @Entity
 @Table(name = "prod")

@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org"
+>
+<head>
+    <title>Admin</title>
+    <meta content="text/html; charset=UTF-8" http-equiv="Content-Type"/>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+<header th:insert="blocks/header :: header"></header>
+<div>
+    <h2>Позиция зарегестрирована</h2>
+    <script>
+
+        function ImagetoPrint(source) {
+            return "<html><title>Штрих-код</title><head><scri" +
+                "pt>function step1(){\n" +
+                "setTimeout('step2()', 10);}\n" +
+                "function step2(){window.print();window.close()}\n" +
+                "</scri" + "pt></head><body onload='step1()'>\n" +
+                `<p style="font-size: 20pt;">Какая-то инфа</p>` +
+                "<img src='" + source + "' /></body></html>";
+        }
+
+        function PrintImage(source) {
+            var Pagelink = "about:blank";
+            var pwa = window.open(Pagelink, "_new");
+            pwa.document.open();
+            console.log(ImagetoPrint(source));
+            pwa.document.write(ImagetoPrint(source));
+            pwa.document.close();
+        }
+
+    </script>
+    <a href="#" onclick="PrintImage(`http:/`+`/5.200.47.32:81/api/code/` + `${id}`); return false;">PRINT</a>
+    <a class="btn btn-success" th:href="'/api/code/' + ${id}">Штрих-код</a>
+    <a class="btn btn-info" href="/admin/warehouse">На главную</a>
+</div>
+<div class="text-muted" th:insert="blocks/footer :: footer"></div>
+</body>
+</html>

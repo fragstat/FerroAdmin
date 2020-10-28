@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org"
-      xmlns:sec="https://www.thymeleaf.org/thymeleaf-extras-springsecurity3">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:sec="https://www.thymeleaf.org/thymeleaf-extras-springsecurity3"
+      xmlns:th="https://www.thymeleaf.org">
 <head>
     <title>Admin</title>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+    <meta content="text/html; charset=UTF-8" http-equiv="Content-Type"/>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" rel="stylesheet">
     <meta charset="utf-8">
     <meta content="width=device-width, initial-scale=1" name="viewport">
     <link href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css" rel="stylesheet">
@@ -92,19 +92,21 @@
 <div class="container mt-5">
     <div class="row">
         <div class="col-md-8 order-md-1">
-            <h4 class="mb-3">Добавление заказа</h4>
-            <form class="needs-validation" novalidate="" method="post">
+            <h4 class="mb-3">Добавление позиции</h4>
+            <form class="needs-validation" method="post" novalidate="">
                 <div class="row">
                     <div class="col-md-6 mb-3">
                         <label for="mark">Марка</label>
-                        <input type="text" name="mark" class="form-control" id="mark" placeholder="" value="" required="">
+                        <input class="form-control" id="mark" name="mark" placeholder="" required="" type="text"
+                               value="">
                         <div class="invalid-feedback">
                             Введите марку.
                         </div>
                     </div>
                     <div class="col-md-6 mb-3">
                         <label for="diameter">Диаметер</label>
-                        <input type="text" name="diameter" class="form-control" id="diameter" placeholder="" value="" required="">
+                        <input class="form-control" id="diameter" name="diameter" placeholder="" required="" type="text"
+                               value="">
                         <div class="invalid-feedback">
                             Введите диаметер.
                         </div>
@@ -115,7 +117,7 @@
                 <div class="row">
                     <div class="col-md-5 mb-3">
                         <label for="packing">Упаковка</label>
-                        <select name="packing" class="custom-select d-block w-100" id="packing" required="">
+                        <select class="custom-select d-block w-100" id="packing" name="packing" required="">
                             <option>Выберете упаковку</option>
                             <option value="">Моток</option>
                             <option>К300</option>
@@ -129,21 +131,18 @@
                     </div>
                     <div class="col-md-4 mb-3">
                         <label for="mass">Вес</label>
-                        <input type="text" name="mass" class="form-control" id="mass" placeholder="" required="">
+                        <input class="form-control" id="mass" name="mass" placeholder="" required="" type="text">
                         <div class="invalid-feedback">
                             Введите массу.
                         </div>
                     </div>
-                    <div class="col-md-3 mb-3">
-                        <label for="datepicker">Отгрузка до</label>
-                        <input class="form-control" id="datepicker" name="date" placeholder="" required="" type="text">
-                        <div class="invalid-feedback">
-                            Введите дату.
-                        </div>
+                    <div class="col-md-12 mb-3">
+                        <label for="comment">Доп.информация</label>
+                        <textarea class="form-control" id="comment" name="comment" rows="3"></textarea>
                     </div>
                 </div>
                 <hr class="mb-4">
-                <button class="btn btn-primary btn-lg btn-block" type="submit">Оформить заказ</button>
+                <button class="btn btn-primary btn-lg btn-block" type="submit">Зарегестрировать</button>
             </form>
         </div>
     </div>

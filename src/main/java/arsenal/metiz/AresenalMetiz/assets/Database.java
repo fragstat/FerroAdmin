@@ -1,5 +1,6 @@
-package arsenal.metiz.AresenalMetiz.models;
+package arsenal.metiz.AresenalMetiz.assets;
 
+import arsenal.metiz.AresenalMetiz.models.DBCertificate;
 import com.google.api.core.ApiFuture;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.firestore.DocumentReference;

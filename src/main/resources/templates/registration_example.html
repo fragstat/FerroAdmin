@@ -1,0 +1,303 @@
+<!doctype html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1, shrink-to-fit=no" name="viewport">
+    <link crossorigin="anonymous" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+          integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" rel="stylesheet">
+    <link href="assets/css/style.css" rel="stylesheet">
+    <link href="assets/css/jquery-ui.css" rel="stylesheet">
+    <title>Форма заполнения</title>
+    <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <script>
+        $(function () {
+            var availableTags = [
+                "Св-01Х19Н9",
+                "Св-01Х23Н28М3Д3Т",
+                "Св-04Х17Н10М2",
+                "Св-04Х17Н10М2-Э",
+                "Св-04Н3ГМТА-О",
+                "Св-04Х19Н11М3",
+                "Св-04Х19Н9",
+                "Св-04Х19Н9С2",
+                "Св-04Х2МА",
+                "Св-04Х2МА-Э",
+                "Св-06Х14",
+                "Св-06Х25Н12ТЮ",
+                "Св-06Х15Н60М15",
+                "Св-06Х19Н9Т",
+                "Св-07Х18Н9ТЮ",
+                "Св-07Х19Н10Б",
+                "Св-07Х25Н13",
+                "Св-07Х25Н12Г2Т",
+                "Св-07ХН3МД",
+                "Св-08А",
+                "Св-08А-О",
+                "Св-08Г2С",
+                "Св-08Г2С-П",
+                "Св-08Г2С-О",
+                "Св-08ГС",
+                "Св-08ГА",
+                "Св-08ГА-О",
+                "Св-08ГСМТ",
+                "Св-08ГСМТ-О",
+                "Св-08Х19Н10Г2Б",
+                "Св-08Х19Н11Ф2С2",
+                "Св-08Х21Н11ФТ",
+                "Св-08Х20Н9Г7Т",
+                "Св-08ХГСМА",
+                "Св-08ХГСМА-О",
+                "Св-08ХГСМФА",
+                "Св-08ХГСМФА-О",
+                "Св-08ХМ-О",
+                "Св-08ХМ",
+                "Св-08ХМФА",
+                "Св-08ХМФА-О",
+                "Св-09Х16Н25М6АФ",
+                "Св-10Г2-О",
+                "Св-10Г2",
+                "Св-10ГНА",
+                "Св-10ГН1МА",
+                "Св-10ГСМТ",
+                "Св-10ГСМТ-О",
+                "Св-10Х19Н11М4Ф",
+                "Св-10НМА",
+                "Св-10НМА-О",
+                "Св-10Х16Н25АМ6",
+                "Св-10Х16Н25АМ6-Э",
+                "Св-10Х17Т",
+                "Св-12Х13",
+                "Св-12Х13-Т-1",
+                "Св-12Х21Н5Т",
+                "Св-13Х25Т",
+                "Св-18ХМА",
+                "Св-18ХМА-О",
+                "Св-15Х18Н12С4ТЮ"
+            ];
+            $("#mark").autocomplete({
+                source: availableTags
+            });
+            $('#markMany').autocomplete({source: availableTags});
+        });
+    </script>
+</head>
+<body>
+<div class="container-fluid">
+    <header th:insert="blocks/warehouse_header :: header"></header>
+    <div class="print">
+        <a href="#" onclick="PrintImage(ssyl); return false;">PRINT</a>
+    </div>
+    <div class="error text-center">
+        Проверьте данные
+    </div>
+    <div class="row form">
+        <div class="col-md-12">
+            <div class="col-12 text-center">
+                <h5 class="text-center row"><span class="col-11">Зарегистрировать продукт</span><span
+                        class="close-block col-1">&#9746;</span></h5>
+            </div>
+            <div class="col-12">
+                <form name="regForm">
+                    <div class="form-group">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="mark">Марка</label>
+                                <input autocomplete="off" class="form-control ui-autocomplete-input" id="mark"
+                                       name="mark" placeholder="" required="" type="text" value="">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="diameter">Диаметр</label>
+                                <input class="form-control" id="diameter" name="diameter"/>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="packing">Упаковка</label>
+                                <select class="form-control" id="packing" name="packing">
+                                    <option>Моток</option>
+                                    <option>К300</option>
+                                    <option>Д300</option>
+                                    <option>К415</option>
+                                    <option>Д415</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="plav">Сплав</label>
+                                <input class="form-control" id="plav" name="plav"/>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="part">Партия</label>
+                                <input class="form-control" id="part" name="part"/>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="mass">Вес</label>
+                                <input class="form-control" id="mass" name="mass"/>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <label for="manufacturer">Производитель</label>
+                            <input autocomplete="off" class="form-control ui-autocomplete-input" id="manufacturer"
+                                   name="manufacturer" oninput='help_man();' placeholder="" required="" type="text"
+                                   value="">
+                        </div>
+                        <div class="row">
+                            <label for="comment">Комментарий</label>
+                            <textarea class="form-control" id="comment" name="comment" rows="3"
+                                      style="margin-top: 0px; margin-bottom: 0px; height: 79px;"></textarea>
+                        </div>
+                    </div>
+                </form>
+                <button class="btn btn-outline-success btn-block" id="add">Зарегистрировать</button>
+            </div>
+        </div>
+    </div>
+    <div class="row addManyForm">
+        <div class="col-md-12">
+            <div class="col-12 text-center">
+                <h5 class="text-center row"><span class="col-11">Зарегистрировать продукты</span><span
+                        class="close-block-regMany col-1">&#9746;</span></h5>
+            </div>
+            <div class="col-12">
+                <form name="regManyForm">
+                    <div class="form-group">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                        <span class="row pl-3">
+                          <label for="mark">Марка</label>
+                          <input class="addManyFormCheck mt-2 ml-2" id="mark" name="addManyFormCheck" type="checkbox">
+                        </span>
+                                <input autocomplete="off" class="form-control ui-autocomplete-input" id="markMany"
+                                       name="markMany" placeholder="" required="" type="text" value="">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                        <span class="row pl-3">
+                          <label for="diameter">Диаметр</label>
+                          <input class="addManyFormCheck mt-2 ml-2" id="diameter" name="addManyFormCheck"
+                                 type="checkbox">
+                        </span>
+                                <input class="form-control" id="diameterMany" name="diameterMany"/>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                        <span class="row pl-3">
+                          <label for="packing">Упаковка</label>
+                          <input class="addManyFormCheck mt-2 ml-2" id="packing" name="addManyFormCheck"
+                                 type="checkbox">
+                        </span>
+                                <select class="form-control" id="packingMany" name="packingMany">
+                                    <option>Моток</option>
+                                    <option>К300</option>
+                                    <option>Д300</option>
+                                    <option>К415</option>
+                                    <option>Д415</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                        <span class="row pl-3">
+                          <label for="plav">Плавка</label>
+                          <input class="addManyFormCheck mt-2 ml-2" id="plav" name="addManyFormCheck" type="checkbox">
+                        </span>
+                                <input class="form-control" id="plavMany" name="plavMany"/>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                        <span class="row pl-3">
+                          <label for="part">Партия</label>
+                          <input class="addManyFormCheck mt-2 ml-2" id="part" name="addManyFormCheck" type="checkbox">
+                        </span>
+                                <input class="form-control" id="partMany" name="partMany"/>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                        <span class="row pl-3">
+                          <label for="mass">Вес</label>
+                          <input class="addManyFormCheck mt-2 ml-2" id="mass" name="addManyFormCheck" type="checkbox">
+                        </span>
+                                <input class="form-control" id="massMany" name="massMany"/>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-9 mb-3">
+                        <span class="row pl-3">
+                          <label for="manufacturer">Производитель</label>
+                          <input class="addManyFormCheck mt-2 ml-2" id="manufacturer" name="addManyFormCheck"
+                                 type="checkbox">
+                        </span>
+                                <input autocomplete="off" class="form-control ui-autocomplete-input"
+                                       id="manufacturerMany" name="manufacturerMany" oninput='help_man();'
+                                       placeholder="" required="" type="text" value="">
+                            </div>
+                            <div class="col-3">
+                                <label for="number">Кол-во</label>
+                                <input class="form-control" id="number" name="number" type="number" value="1">
+                            </div>
+                        </div>
+                        <div class="row">
+                      <span class="row pl-3">
+                        <label for="comment">Комментарий</label>
+                        <input class="addManyFormCheck mt-2 ml-2" id="comment" name="addManyFormCheck" type="checkbox">
+                      </span>
+                            <textarea class="form-control" id="commentMany" name="commentMany" rows="3"
+                                      style="margin-top: 0px; margin-bottom: 0px; height: 79px;"></textarea>
+                        </div>
+                    </div>
+                </form>
+                <button class="btn btn-outline-success btn-block" id="addMany">Зарегистрировать</button>
+            </div>
+        </div>
+    </div>
+    <div class="row mt-2">
+        <div class="col-2" id="controlBtns">
+            <button class="btn btn-outline-info btn-block mb-2 mainBtns add" id="add">Добавить</button>
+            <button class="btn btn-outline-info btn-block mb-2 mainBtns addMany" id="addMany">Добавить несколько
+            </button>
+            <button class="btn btn-outline-info btn-block mb-2 mainBtns all" id="all">Посмотреть все</button>
+            <button class="btn btn-outline-info btn-block mb-2 mainBtns openSearch" id="openSearch">Поиск</button>
+            <button class="btn btn-outline-info btn-block mb-2 mainBtns openShipInput" id="openShipInput">Отгрузка
+            </button>
+            <button class="btn btn-outline-info btn-block mb-2 mainBtns hide d-none" id="hide">Скрыть все</button>
+        </div>
+        <div class="col-7 column" id="content">
+            <div class="sortFilter">
+                <label for="sort">Сортировка</label>
+                <select id="sort" name="sort form-control" onchange="sorting()">
+                    <option value="mark">Марка</option>
+                    <option id="diameter" value="diameter">Диаметр</option>
+                    <option value="packing">Упаковка</option>
+                    <option value="part">Партия</option>
+                    <option value="splav">Сплав</option>
+                    <option value="mass">Вес</option>
+                </select>
+            </div>
+            <div class="cards row" id="cards"></div>
+        </div>
+        <div class="col-3 filter">
+            <h5>Фильтр</h5>
+            <form>
+                <div class="form-group">
+                    <label class="col-sm-2 col-form-label" for="">Марка</label>
+                    <div class="marks"></div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-2 col-form-label" for="inputPassword3">Диаметр</label>
+                    <div class="diameters" id="slider"></div>
+                    <b>Значение ползунка: <span id="result-slider" style="color:green"></span></b>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-2 col-form-label" for="">Упаковка</label>
+                    <div class="packing"></div>
+            </form>
+            <button class="btn btn-outline-success btn-block" id="filtrate" type="button">Отфильтровать</button>
+        </div>
+    </div>
+
+</div>
+
+
+<script src="assets/js/events.js"></script>
+</body>
+</html>
