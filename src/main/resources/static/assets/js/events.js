@@ -63,9 +63,41 @@ $('.form').delegate("#add", "click", function () {
         });
 })
 
+function pack(id, mark, diameter, packing, comment, part, plav, mass, status) {
+    return `<a href="package?id=${id}" class="card product mx-1 my-1" style="width:30%" id="${id}">
+        <div class="card-body p-3"> 
+            <div class="col-12 text-center" style="font-size: 19px;">Поддон</div>
+            <p class="card-text">Марка: ${mark}</p>
+            <p class="card-text">Диаметр: ${diameter}</p>
+            <p class="card-text">Упаковка: ${packing}</p>
+            <p class="card-text">Партия: ${part}</p>
+            <p class="card-text">Плавка: ${plav}</p>
+            <p class="card-text">Вес: ${mass}</p>
+            <p class="card-text">Статус: ${status}</p>
+            <p class="card-text">Комментарий: ${comment}</p>
+        </div>
+    </a>`;
+}
+
+function pack_without_comm(id, mark, diameter, packing, part, plav, mass, status) {
+    return `<a href="package?id=${id}" class="card product mx-1 my-1" style="width:30%" id="${id}">
+        <div class="card-body p-3"> 
+            <div class="col-12 text-center" style="font-size: 19px;">Поддон</div>
+            <p class="card-text">Марка: ${mark}</p>
+            <p class="card-text">Диаметр: ${diameter}</p>
+            <p class="card-text">Упаковка: ${packing}</p>
+            <p class="card-text">Партия: ${part}</p>
+            <p class="card-text">Плавка: ${plav}</p>
+            <p class="card-text">Вес: ${mass}</p>
+            <p class="card-text">Статус: ${status}</p>
+        </div>
+    </a>`;
+}
+
 function card(id, mark, diameter, packing, comment, part, plav, mass, status) {
     return `<a href="product?id=${id}" class="card product mx-1 my-1" style="width:30%" id="${id}">
-        <div class="card-body"> 
+        <div class="card-body p-3"> 
+            <div class="col-12 text-center" style="font-size: 19px;">Позиция</div>
             <p class="card-text">Марка: ${mark}</p>
             <p class="card-text">Диаметр: ${diameter}</p>
             <p class="card-text">Упаковка: ${packing}</p>
@@ -80,7 +112,8 @@ function card(id, mark, diameter, packing, comment, part, plav, mass, status) {
 
 function card_without_comm(id, mark, diameter, packing, part, plav, mass, status) {
     return `<a href="product?id=${id}" class="card product mx-1 my-1" style="width:30%" id="${id}">
-        <div class="card-body"> 
+        <div class="card-body p-3"> 
+            <div class="col-12 text-center" style="font-size: 19px;">Позиция</div> 
             <p class="card-text">Марка: ${mark}</p>
             <p class="card-text">Диаметр: ${diameter}</p>
             <p class="card-text">Упаковка: ${packing}</p>
@@ -131,7 +164,7 @@ function card_to_print(id) {
                <p class="card-text">Партия: ${part}</p>
                <p class="card-text">Плавка: ${plav}</p>
                <p class="card-text">Вес: ${mass}</p>
-               <button class="btn btn-outline-info btn-block mb-2" id="print" onclick='PrintImage(${id}); return false;'>Печать</button>
+               <button class="btn btn-outline-info btn-block mb-2" id="print" onclick='PrintCode(${id}); return false;'>Печать</button>
             </div>
          </div>`;
         },
@@ -232,6 +265,7 @@ $('.addManyForm').delegate("#addMany", "click", function () {
     btn = `<button class="btn btn-outline-success btn-block" id="regMany">Зарегистрировать</button>`;
     $("#cards").html(btn + products);
     $("#cards").unbind('click').delegate('#regMany', 'click', function () {
+        $("#regMany").prop("disabled", true);
         elems = $('.productInput');
         objs = [];
         for (i = 0; i < elems.length; i++) {
@@ -298,12 +332,13 @@ $('.addManyForm').delegate("#addMany", "click", function () {
             success: function (data, textStatus) {
                 console.log(data);
                 products = ``;
-                products = `<div class="row col-12"><button class="btn btn-outline-info btn-block mb-2" onclick="PrintImage(${data.id}); return false;">Распечатать все</button></div>
+                products = `<div class="row col-12"><button class="btn btn-outline-info btn-block mb-2" onclick="PrintCode(${data.id}); return false;">Распечатать все</button></div>
              <div class="row col-12"><button class="btn btn-outline-info btn-block mb-2" onclick="PrintPackage(${data.package}); return false;">Распечатать код поддона</button></div>`;
                 data.id.forEach(function (id) {
                     products += card_to_print(id);
                 })
                 console.log(products);
+                $("#regMany").prop("disabled", false);
                 $("#cards").html(products);
             }
         })
@@ -408,19 +443,26 @@ $('#cards').delegate('#search', "click", function () {
             dataType: 'json',
             success: function (data, textStatus) {
                 console.log(data);
-                data.forEach(function (product) {
-                    if (product.status == 'Departured')
+                data.forEach(function (elem) {
+                    if (elem.status == 'Departured')
                         status = 'Отгружен';
-                    else if (product.status == 'In_stock')
+                    else if (elem.status == 'In_stock')
                         status = 'На складе';
-                    if (product.comment == null || product.comment == "") {
-                        products = products + card_without_comm(product.id, product.mark, product.diameter, product.packing, product.part, product.plav, product.mass, status);
+                    if (elem.type == 'POSITION') {
+                        if (elem.comment == null || elem.comment == "") {
+                            products = products + card_without_comm(elem.id, elem.mark, elem.diameter, elem.packing, elem.part, elem.plav, elem.mass, status);
+                        } else {
+                            products = products + card(elem.id, elem.mark, elem.diameter, elem.packing, elem.comment, elem.part, elem.plav, elem.mass, status);
+                        }
                     } else {
-                        products = products + card(product.id, product.mark, product.diameter, product.packing, product.comment, product.part, product.plav, product.mass, status);
+                        if (elem.comment == null || elem.comment == "") {
+                            products = products + pack_without_comm(elem.id, elem.mark, elem.diameter, elem.packing, elem.part, elem.plav, elem.mass, status);
+                        } else {
+                            products = products + pack(elem.id, elem.mark, elem.diameter, elem.packing, elem.comment, elem.part, elem.plav, elem.mass, status);
+                        }
                     }
                 });
                 $('.searchContent').html(products);
-                $('#hide').attr('class', 'btn btn-outline-info btn-block mb-2 hide');
             },
             error: function () {
                 console.log(data);
@@ -475,6 +517,7 @@ $('#cards').delegate('#ship', 'click', function () {
 })
 
 $('#cards').delegate('#depart', 'click', function () {
+    $("#depart").prop("disabled", true);
     contrAgent = document.forms.departureForm.contrAgent.value;
     account = document.forms.departureForm.account.value;
     objects = [];
@@ -519,6 +562,7 @@ $('#cards').delegate('#depart', 'click', function () {
             objs.forEach(function (obj) {
                 products += card_to_print(obj.id);
             })
+            $("#depart").prop("disabled", false);
             $('#cards').html(products);
         }
     })
@@ -530,7 +574,7 @@ $('#cards').delegate('#depart', 'click', function () {
 //   var pwa = window.open(PageLink, '_blank');
 //})
 
-function ImagetoPrint(id) {
+function CodetoPrint(id) {
     str = '';
     gost = '1';
     $.ajax({
@@ -579,17 +623,16 @@ function ImagetoPrint(id) {
     return str;
 }
 
-function PrintImage(id) {
+function PrintCode(id) {
     console.log(arguments);
     prints = '';
     for (i = 0; i < arguments.length; i++) {
-        prints += ImagetoPrint(arguments[i]);
+        prints += CodetoPrint(arguments[i]);
         console.log(prints);
     }
     var Pagelink = "";
     var pwa = window.open(Pagelink, "_blank");
     pwa.document.open();
-    //console.log(ImagetoPrint(id));
     pwa.document.write(prints);
     pwa.document.close();
 }
@@ -631,7 +674,7 @@ function PackageToPrint(id) {
             <p style='font-size: 20px; margin: 0'>Вид поставки: ${data.packing}</p>
             <p style='font-size: 20px; margin: 0'>Партия: ${data.part}</p>
             <p style='font-size: 20px; margin: 0'>Плавка: ${data.plav}</p>
-            <p style='font-size: 20px; margin: 0'>Масса: ${data.weight.toFixed(2)}</p>
+            <p style='font-size: 20px; margin: 0'>Масса: ${data.mass.toFixed(2)}</p>
 </body></html>`;
             console.log(str);
         },
@@ -653,7 +696,6 @@ function PrintPackage(id) {
     var Pagelink = "";
     var pwa = window.open(Pagelink, "_blank");
     pwa.document.open();
-    //console.log(ImagetoPrint(id));
     pwa.document.write(prints);
     pwa.document.close();
 }

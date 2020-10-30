@@ -4,10 +4,7 @@ import arsenal.metiz.AresenalMetiz.assets.DocCreating;
 import arsenal.metiz.AresenalMetiz.assets.IdToPrint;
 import arsenal.metiz.AresenalMetiz.assets.MassException;
 import arsenal.metiz.AresenalMetiz.assets.PositionStatus;
-import arsenal.metiz.AresenalMetiz.models.DepartureAction;
-import arsenal.metiz.AresenalMetiz.models.MDeparture;
-import arsenal.metiz.AresenalMetiz.models.SimpleDepartureObj;
-import arsenal.metiz.AresenalMetiz.models.WarehousePosition;
+import arsenal.metiz.AresenalMetiz.models.*;
 import arsenal.metiz.AresenalMetiz.repo.DepartureActionRepo;
 import arsenal.metiz.AresenalMetiz.repo.WarehouseRepo;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
 
-import static arsenal.metiz.AresenalMetiz.controllers.APIController.round;
+import static arsenal.metiz.AresenalMetiz.controllers.APIController.*;
 
 @RestController
 public class DepartureController {
@@ -42,11 +39,32 @@ public class DepartureController {
         updateTags();
         Set<WarehousePosition> set = new HashSet<>();
         try {
-            Arrays.stream(positions).forEachOrdered(p -> set.add(warehouse.findById(APIController.decodeEAN(p.trim())).get()));
-        } catch (Exception ignored) {
-
+            for (String p : positions) {
+                long ean = decodeEAN(p);
+                System.out.println(ean);
+                if (warehouse.findById(ean).isPresent()) {
+                    var position = warehouse.findById(ean).get();
+                    if (set.contains(position)) {
+                        set.remove(position);
+                    } else {
+                        set.add(warehouse.findById(ean).get());
+                    }
+                } else if (warehousePackage.findById(ean).isPresent()) {
+                    List<WarehousePosition> positionList = warehousePackage.findById(ean).get().getPositionsList();
+                    for (WarehousePosition position : positionList) {
+                        if (set.contains(position)) {
+                            set.remove(position);
+                        } else {
+                            set.add(position);
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
         set.removeIf(p -> p.getStatus().equals(PositionStatus.Departured));
+        System.out.println(set);
         weight = set.stream().mapToDouble(WarehousePosition::getMass).sum();
         return APIController.round((float) weight, 2);
     }
@@ -103,15 +121,22 @@ public class DepartureController {
             a.setMass(weight);
             a.setStatus(PositionStatus.Departured);
             warehouse.save(a);
+            removeFromPackage(a);
             return actionByPosition(id, weight, contrAgent, a, account);
         } else if (weight <= a.getMass()) {
             a.setMass(round(a.getMass() - weight, 2));
             a.setStatus(PositionStatus.In_stock);
             warehouse.save(a);
+            WarehousePackage pack = a.getPack();
+            if (pack != null) {
+                pack.setMass(round((float) (pack.getMass() - weight), 2));
+            }
             WarehousePosition newPosition = new WarehousePosition(a.getMark(), a.getDiameter(), a.getPacking(),
                     a.getComment(), a.getPart(), a.getPlav(), weight, id, a.getManufacturer(),
                     PositionStatus.Departured);
             warehouse.save(newPosition);
+            removeFromPackage(newPosition);
+
             return actionByPosition(id, weight, contrAgent, newPosition, account);
         } else {
             throw new MassException();
@@ -141,6 +166,13 @@ public class DepartureController {
             return authentication.getName();
         }
         return "no info";
+    }
+
+    private void removeFromPackage(WarehousePosition p) {
+        WarehousePackage pack = p.getPack();
+        if (pack != null) {
+            pack.remove(p);
+        }
     }
 
 }

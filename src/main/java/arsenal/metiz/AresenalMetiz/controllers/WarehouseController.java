@@ -25,5 +25,10 @@ public class WarehouseController {
         return "product";
     }
 
+    @GetMapping("/package")
+    public String getWarehousePackage() {
+        return "package";
+    }
+
 
 }

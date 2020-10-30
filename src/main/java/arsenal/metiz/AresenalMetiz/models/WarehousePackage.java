@@ -3,8 +3,10 @@ package arsenal.metiz.AresenalMetiz.models;
 import arsenal.metiz.AresenalMetiz.assets.PositionDataException;
 import arsenal.metiz.AresenalMetiz.assets.PositionStatus;
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
+import org.springframework.lang.NonNull;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -12,17 +14,25 @@ import java.util.List;
 
 @AllArgsConstructor
 @NoArgsConstructor
-@Data
 @Entity
+@Getter
+@Setter
 public class WarehousePackage {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
 
-    private String mark, diameter, packing, date, comment, part, plav, manufacturer;
+    @NonNull
+    private String mark, diameter, packing, date;
+
+    private String comment;
+
+    @NonNull
+    private String part, plav, manufacturer;
 
     private PositionStatus status;
 
+    @Column(name = "weight")
     private double mass = 0.0;
 
     @OneToMany(mappedBy = "pack", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
