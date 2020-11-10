@@ -1,5 +1,6 @@
 package arsenal.metiz.AresenalMetiz.controllers;
 
+import com.aspose.words.BarcodeParameters;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.client.j2se.MatrixToImageWriter;
 import com.google.zxing.common.BitMatrix;
@@ -12,8 +13,11 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.imageio.ImageIO;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 
 @Controller
 public class BarcodeController {
@@ -21,7 +25,6 @@ public class BarcodeController {
     public static BufferedImage generateEAN13BarcodeImage(String barcodeText) throws Exception {
         EAN13Writer barcodeWriter = new EAN13Writer();
         BitMatrix bitMatrix = barcodeWriter.encode(barcodeText, BarcodeFormat.EAN_13, 350, 100);
-
         return MatrixToImageWriter.toBufferedImage(bitMatrix);
     }
 
@@ -60,5 +63,22 @@ public class BarcodeController {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ImageIO.write(generateEAN13BarcodeImage(s), "png", baos);
         return baos.toByteArray();
+    }
+
+    public static BufferedImage process(BufferedImage old, String text) {
+        int w = old.getWidth() ;
+        int h = old.getHeight() ;
+        BufferedImage img = new BufferedImage(
+                w, h, BufferedImage.TYPE_INT_ARGB);
+        Graphics2D g2d = img.createGraphics();
+        g2d.drawImage(old, 0, 0, w, h, null);
+        g2d.setPaint(Color.black);
+        g2d.setFont(new Font("MS Shell Dlg 2", Font.PLAIN, 15));
+        FontMetrics fm = g2d.getFontMetrics();
+        int x = (img.getWidth() - fm.stringWidth(text)) / 2 ;
+        int y = 285 * 2 / 3;
+        g2d.drawString(text, x, y);
+        g2d.dispose();
+        return img;
     }
 }

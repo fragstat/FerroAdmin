@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.lang.NonNull;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -22,12 +23,10 @@ public class WarehousePackage {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
 
-    @NonNull
     private String mark, diameter, packing, date;
 
     private String comment;
 
-    @NonNull
     private String part, plav, manufacturer;
 
     private PositionStatus status;
@@ -39,7 +38,7 @@ public class WarehousePackage {
     private List<WarehousePosition> positionsList;
 
     public void attach(WarehousePosition position) throws PositionDataException {
-        if (mark == null) {
+        if (mark == null && position.getPack() == null) {
             positionsList = new ArrayList<>();
             mark = position.getMark();
             diameter = position.getDiameter();
@@ -53,7 +52,9 @@ public class WarehousePackage {
         } else if (!mark.equals(position.getMark()) || !diameter.equals(position.getDiameter()) ||
                 !packing.equals(position.getPacking()) ||
                 !part.equals(position.getPart()) || !plav.equals(position.getPlav()) ||
-                !manufacturer.equals(position.getManufacturer()) || status != PositionStatus.In_stock) {
+                !manufacturer.equals(position.getManufacturer()) || status != PositionStatus.In_stock ||
+                position.getPack() != null) {
+
             throw new PositionDataException();
         }
         positionsList.add(position);
@@ -61,6 +62,7 @@ public class WarehousePackage {
         position.setPack(this);
     }
 
+    @Transactional(rollbackFor = PositionDataException.class)
     public void attachAll(List<WarehousePosition> positions) {
         positions.forEach(this::attach);
     }

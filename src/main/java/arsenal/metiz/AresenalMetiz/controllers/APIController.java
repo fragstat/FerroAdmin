@@ -69,7 +69,7 @@ public class APIController {
         updateTags();
         ArrayList<WarehousePosition> list = new ArrayList<>();
         allPositions.forEach(list::add);
-        list.removeIf(p -> p.getStatus().equals(PositionStatus.Departured));
+        //list.removeIf(p -> p.getStatus().equals(PositionStatus.Departured));
         return list;
     }
 
@@ -166,6 +166,7 @@ public class APIController {
 
     @GetMapping("api/position/diameter")
     public ArrayList<String> giveDiameters() {
+        updateTags();
         ArrayList<String> diameters = new ArrayList<>();
         ArrayList<String> diameter = new ArrayList<>();
         StreamSupport.stream(allPositions.spliterator(), false).forEach(p -> {
@@ -187,19 +188,27 @@ public class APIController {
     public @ResponseBody
     Set<WarehousePosition> sort(@RequestBody SortRequest sortRequest) {
         Set<WarehousePosition> wp = new HashSet<>();
+        boolean marksEmpty = sortRequest.getMark().isEmpty();
+        boolean packingEmpty = sortRequest.getPacking().isEmpty();
         StreamSupport.stream(allPositions.spliterator(), false).forEach(p -> {
             try {
-                if (sortRequest.getMark().contains(p.getMark()) && sortRequest.getPacking().contains(p.getPacking())
+                if ((sortRequest.getMark().contains(p.getMark()) || marksEmpty) &&
+                        (sortRequest.getPacking().contains(p.getPacking()) || packingEmpty)
                         && Float.parseFloat(p.getDiameter()) >= sortRequest.getDL()
                         && Float.parseFloat(p.getDiameter()) <= sortRequest.getDM()) {
                     wp.add(p);
                 }
-            } catch (Exception e) {
-                e.printStackTrace();
+            } catch (Exception ignored) {
             }
         });
         wp.removeIf(p -> p.getStatus().equals(PositionStatus.Departured));
         return wp;
+    }
+
+    @PostMapping("/api/filter/table")
+    public @ResponseBody
+    Set<TableView> sortTable(@RequestBody SortRequest sortRequest) {
+        return toTableViews(new ArrayList<>(sort(sortRequest)));
     }
 
     @GetMapping("api/verify")
@@ -218,7 +227,9 @@ public class APIController {
     @GetMapping("api/gost")
     public String gost(@RequestParam String mark) {
         mark = mark.trim().replaceAll("–", "-");
-        String[] G2246 = "Св-08ГС,Св-12ГС,Св-08Г2С,Св-10ГН,Св-08ГСМТ,Св-15ГСТЮЦА,Св-20ГСТЮА,Св-18ХГС,Св-10НМА,Св-08МХ,Св-08ХМ,Св-18ХМА,Св-08ХНМ,Св-08ХМФА,Св-10ХМФТ,Св-08ХГ2С,Св-08ХГСМА,Св-10ХГ2СМА,Св-08ХГСМФА,Св-04Х2МА,Св-13Х2МФТ,Св-08Х3Г2СМ,Св-08ХМНФБА,Св-08ХН2М,Св-10ХН2ГМТ,Св-08ХН2ГМТА, Св-08ХН2ГМЮ, Св-08ХН2Г2СМЮ, Св-06Н3, Св-10Х5М, Св-12X11НМФ, Св-10Х11НВМФ, Св-12Х13, Св-20Х13, Св-06Х14, Св-08Х14ГНТ, Св-10Х17Т, Св-13Х25Т, Св-01Х19Н9, Св-08Х16Н8М2, Св-08Х18Н8Г2Б, Св-07Х18Н9ТЮ, Св-08, Св-08А, Св-08АА, Св-08ГА, Св-10ГА, Св-10Г2, Св-06Х19Н9Т, Св-04Х19Н9С2, Св-04Х19Н9, Св-05Х19Н9Ф3С2, Св-07Х19Н10Б, Св-08Х19Н10Г2Б, Св-06Х19Н10М3Т, Св-08Х19Н10М3Б, СВ-04Х19Н11М3, Св-05Х20Н9ФБС, Св-06Х20Н11М3ТБ, Св-10Х20Н15, Св-07Х25Н12Г2Т, Св-06Х25Н12ТЮ, Св-07Х25Н13, Св-08Х25Н13БТЮ, Св-13Х25Н18, Св-08Х20Н9Г7Т, Св-08Х21Н10Г6, Св-30Х25Н16Г7, Св-10Х16Н25АМ6, Св-09Х16Н25М6АФ, Св-01Х23Н28М3Д3Т, Св-30Х15Н35В3Б3Т, Св-08Н50, Св-06Х15Н60М15".replaceAll(" ", "").split(",");
+        String[] G2246 = ("Св-08ГС,Св-12ГС,Св-08Г2С,Св-08Г2С-О,Св-08Г2С-П,Св-10ГН,Св-08ГСМТ,Св-15ГСТЮЦА,Св-20ГСТЮА," +
+                "Св-18ХГС," +
+                "Св-10НМА,Св-08МХ,Св-08ХМ,Св-18ХМА,Св-08ХНМ,Св-08ХМФА,Св-10ХМФТ,Св-08ХГ2С,Св-08ХГСМА,Св-10ХГ2СМА,Св-08ХГСМФА,Св-04Х2МА,Св-13Х2МФТ,Св-08Х3Г2СМ,Св-08ХМНФБА,Св-08ХН2М,Св-10ХН2ГМТ,Св-08ХН2ГМТА, Св-08ХН2ГМЮ, Св-08ХН2Г2СМЮ, Св-06Н3, Св-10Х5М, Св-12X11НМФ, Св-10Х11НВМФ, Св-12Х13, Св-20Х13, Св-06Х14, Св-08Х14ГНТ, Св-10Х17Т, Св-13Х25Т, Св-01Х19Н9, Св-08Х16Н8М2, Св-08Х18Н8Г2Б, Св-07Х18Н9ТЮ, Св-08, Св-08А, Св-08АА, Св-08ГА, Св-10ГА, Св-10Г2, Св-06Х19Н9Т, Св-04Х19Н9С2, Св-04Х19Н9, Св-05Х19Н9Ф3С2, Св-07Х19Н10Б, Св-08Х19Н10Г2Б, Св-06Х19Н10М3Т, Св-08Х19Н10М3Б, СВ-04Х19Н11М3, Св-05Х20Н9ФБС, Св-06Х20Н11М3ТБ, Св-10Х20Н15, Св-07Х25Н12Г2Т, Св-06Х25Н12ТЮ, Св-07Х25Н13, Св-08Х25Н13БТЮ, Св-13Х25Н18, Св-08Х20Н9Г7Т, Св-08Х21Н10Г6, Св-30Х25Н16Г7, Св-10Х16Н25АМ6, Св-09Х16Н25М6АФ, Св-01Х23Н28М3Д3Т, Св-30Х15Н35В3Б3Т, Св-08Н50, Св-06Х15Н60М15").replaceAll(" ", "").split(",");
         List<String> G2246A = Arrays.asList(G2246);
         String[] G18143 = "12Х18Н10Т, 12Х18Н9, 08Х18Н10, 12Х13, 20Х13, 10Х17Н13М2Т, 12Х13-Т, 12Х13-Т-1".replaceAll(" ", "").split(",");
         List<String> G18143A = Arrays.asList(G18143);
@@ -307,8 +318,12 @@ public class APIController {
 
     @GetMapping("api/table")
     public Set<TableView> tableView() {
+        return toTableViews((List<WarehousePosition>) allPositions);
+    }
+
+    private Set<TableView> toTableViews(List<WarehousePosition> positions) {
         Set<TableView> tableViews = new TreeSet<>();
-        for (WarehousePosition p : allPositions) {
+        for (WarehousePosition p : positions) {
             TableView tableView = new TableView(p);
             if (tableViews.contains(tableView)) {
                 for (TableView tableViewFromIterator : tableViews) {

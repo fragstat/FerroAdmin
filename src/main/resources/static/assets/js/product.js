@@ -65,6 +65,8 @@ $(document).ready(function () {
             dataType: 'json',
             success: function (data, textStatus) {
                 if (data.status == 'Departured')
+                    $('#shipment').hide();
+                if (data.status == 'Departured')
                     status = 'Отгружен';
                 else if (data.status == 'In_stock')
                     status = 'На складе';

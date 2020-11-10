@@ -46,6 +46,7 @@ public class AddController {
     public Map<String, List<Long>> doMultiInput(@RequestBody List<WarehouseAddPosition> in) {
         List<Long> ids = new ArrayList<>();
         List<Long> packs = new ArrayList<>();
+        List<WarehousePosition> list = new ArrayList<>();
         Map<String, List<Long>> id = new HashMap<>();
         WarehousePackage packages = new WarehousePackage();
         for (WarehouseAddPosition p : in) {
@@ -53,9 +54,10 @@ public class AddController {
                     p.getComment(), p.getPart(), p.getPlav(),
                     p.getMass(), p.getManufacturer(), PositionStatus.In_stock);
             warehouse.save(warehousePosition);
-            packages.attach(warehousePosition);
+            list.add(warehousePosition);
             ids.add(warehousePosition.getId());
         }
+        packages.attachAll(list);
         warehousePackage.save(packages);
         packs.add(packages.getId());
         id.put("id", ids);

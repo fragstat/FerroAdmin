@@ -63,8 +63,46 @@ $('.form').delegate("#add", "click", function () {
         });
 })
 
+function table(data){
+    products = `<div class="table-responsive"><table class="table table-sm">
+    <thead>
+    <tr>
+       <th scope="col">#</th>
+       <th scope="col">Марка</th>
+       <th scope="col">Диаметр</th>
+       <th scope="col">Упаковка</th>
+       <th scope="col">Масса</th>
+    </tr>
+    </thead>
+    <tbody>`;
+    for (i = 0; i < data.length; i++){
+        products += `<tr><th>${i + 1}</th><td>${data[i].mark}</td><td>${data[i].diameter}</td>
+       <td>${data[i].packing}</td><td>${data[i].mass.toFixed(2)}</td></tr>`;
+    }
+    products += '</tbody></table></div>';
+    return products;
+}
+
+function cards(data){
+    products = '';
+    data.forEach(function(elem)
+    {
+        if (elem.status == 'Departured')
+            status = 'Отгружен';
+        else if (elem.status == 'In_stock')
+            status = 'На складе';
+        if (elem.comment == null || elem.comment == ""){
+            products = products + card_without_comm(elem.id, elem.mark, elem.diameter, elem.packing, elem.part, elem.plav, elem.mass, status);
+        }
+        else{
+            products = products + card(elem.id, elem.mark, elem.diameter, elem.packing, elem.comment, elem.part, elem.plav, elem.mass, status);
+        }
+    });
+    return products;
+}
+
 function pack(id, mark, diameter, packing, comment, part, plav, mass, status) {
-    return `<a href="package?id=${id}" class="card product mx-1 my-1" style="width:30%" id="${id}">
+    return `<a href="package?id=${id}" class="card product mx-1 my-1" style="width:30%" id="${id}" target="_blank">
         <div class="card-body p-3"> 
             <div class="col-12 text-center" style="font-size: 19px;">Поддон</div>
             <p class="card-text">Марка: ${mark}</p>
@@ -80,7 +118,7 @@ function pack(id, mark, diameter, packing, comment, part, plav, mass, status) {
 }
 
 function pack_without_comm(id, mark, diameter, packing, part, plav, mass, status) {
-    return `<a href="package?id=${id}" class="card product mx-1 my-1" style="width:30%" id="${id}">
+    return `<a href="package?id=${id}" class="card product mx-1 my-1" style="width:30%" id="${id}" target="_blank">
         <div class="card-body p-3"> 
             <div class="col-12 text-center" style="font-size: 19px;">Поддон</div>
             <p class="card-text">Марка: ${mark}</p>
@@ -95,7 +133,7 @@ function pack_without_comm(id, mark, diameter, packing, part, plav, mass, status
 }
 
 function card(id, mark, diameter, packing, comment, part, plav, mass, status) {
-    return `<a href="product?id=${id}" class="card product mx-1 my-1" style="width:30%" id="${id}">
+    return `<a href="product?id=${id}" class="card product mx-1 my-1" style="width:30%" id="${id}" target="_blank">
         <div class="card-body p-3"> 
             <div class="col-12 text-center" style="font-size: 19px;">Позиция</div>
             <p class="card-text">Марка: ${mark}</p>
@@ -111,7 +149,7 @@ function card(id, mark, diameter, packing, comment, part, plav, mass, status) {
 }
 
 function card_without_comm(id, mark, diameter, packing, part, plav, mass, status) {
-    return `<a href="product?id=${id}" class="card product mx-1 my-1" style="width:30%" id="${id}">
+    return `<a href="product?id=${id}" class="card product mx-1 my-1" style="width:30%" id="${id}" target="_blank">
         <div class="card-body p-3"> 
             <div class="col-12 text-center" style="font-size: 19px;">Позиция</div> 
             <p class="card-text">Марка: ${mark}</p>
@@ -263,8 +301,8 @@ $('.addManyForm').delegate("#addMany", "click", function () {
         products += product;
     }
     btn = `<button class="btn btn-outline-success btn-block" id="regMany">Зарегистрировать</button>`;
-    $("#cards").html(btn + products);
-    $("#cards").unbind('click').delegate('#regMany', 'click', function () {
+    $("#content").html(btn + products);
+    $("#content").unbind('click').delegate('#regMany', 'click', function () {
         $("#regMany").prop("disabled", true);
         elems = $('.productInput');
         objs = [];
@@ -339,46 +377,96 @@ $('.addManyForm').delegate("#addMany", "click", function () {
                 })
                 console.log(products);
                 $("#regMany").prop("disabled", false);
-                $("#cards").html(products);
+                $("#content").html(products);
             }
         })
     })
 })
 
-$('#controlBtns').delegate('#all', "click", function () {
-    console.log('ass we can');
+$('#controlBtns').delegate('#all', "click", function(){
+    $("#content").html(`
+   <div class="col-9 column">
+      <div class="sortSwitch row">
+      <div class="sortFilter mr-5">
+         <label for="sort">Сортировка</label>
+         <select name="sort form-control" onchange="sorting()" id="sort">
+            <option value="mark">Марка</option>
+            <option value="diameter" id="diameter">Диаметр</option>
+            <option value="packing">Упаковка</option>
+            <option value="part">Партия</option>
+            <option value="splav">Плавка</option>
+            <option value="mass">Вес</option>
+         </select>
+      </div>
+      <div>Таблица</div>
+      <div class="checkbox checbox-switch switch-primary">
+         <label>
+            <input type="checkbox" name="" checked="" id="switcher"/>
+            <span></span>
+         </label>
+      </div>
+      <div>Карточки</div>
+      </div>
+      <div class="cards row" id="cards"></div>
+   </div>
+   <div class="col-3 filter">
+   <h5>Фильтр</h5>
+   <form>
+      <div class="form-group">
+      <label for="" class="col-sm-2 col-form-label">Марка</label>
+      <div class="marks"></div>
+      </div>
+      <div class="form-group">
+      <label for="inputPassword3" class="col-sm-2 col-form-label">Диаметр</label>
+      <div class="diameters" id="slider"></div>
+      <b>Значение ползунка: <span style="color:green" id="result-slider"></span></b>
+      </div>
+      <div class="form-group">
+      <label for="" class="col-sm-2 col-form-label">Упаковка</label>
+      <div class="packing"></div>
+   </form>
+   <button class="btn btn-outline-success btn-block" id="filtrate" type="button">Отфильтровать</button>
+   </div>`);
+    fillFilter();
+    $("#switcher").prop('checked', true);
     products = "";
     $.ajax(
         {
             type: 'GET',
-            url: 'http://5.200.47.32/api/positions',
+            url: 'http://5.200.47.32:80/api/positions',
             dataType: 'json',
-            success: function (data, textStatus) {
+            success: function(data, textStatus)
+            {
                 console.log(data);
-                data.forEach(function (product) {
-                    if (product.status == 'Departured')
-                        status = 'Отгружен';
-                    else if (product.status == 'In_stock')
-                        status = 'На складе';
-                    if (product.comment == null || product.comment == "") {
-                        products = products + card_without_comm(product.id, product.mark, product.diameter, product.packing, product.part, product.plav, product.mass, status);
-                    } else {
-                        products = products + card(product.id, product.mark, product.diameter, product.packing, product.comment, product.part, product.plav, product.mass, status);
-                    }
-                });
+                products = cards(data);
                 $('#cards').html(products);
-                $('#hide').attr('class', 'btn btn-outline-info btn-block mainBtns mb-2 hide');
             }
         }
     )
 })
 
+$('#controlBtns').delegate('#unite', "click", function(){
+    $('#content').html(
+        `<form name="uniteForm" class="col-12 uniteForm">
+         <div class="row">
+            <div class="col-9 ui-widget">
+               <input class="form-control col-10" name="uniteValues" id="uniteValues" autocomplete="off/>
+            </div>
+            <div class="col-3">
+               <button type="button" class="btn btn-outline-info btn-block mb-2 unite" id="unite">Объединить</button>
+            </div>
+         </div>
+      </form>
+      <div class="uniteContent col-12 row"></div>`);
+    bind_unite();
+})
+
 $('#controlBtns').delegate('#openSearch', "click", function () {
-    $('#cards').html(
+    $('#content').html(
         `<form name="searchForm" class="col-12">
          <div class="row">
             <div class="col-9 ui-widget">
-               <input class="form-control col-10" name="searchValue" id="searchValue" oninput='onInput();'/>
+               <input class="form-control col-10" name="searchValue" id="searchValue" oninput='onInput();' autocomplete="off"/>
             </div>
             <div class="col-3">
                <button type="button" class="btn btn-outline-info btn-block mb-2 search" id="search">Найти</button>
@@ -390,18 +478,23 @@ $('#controlBtns').delegate('#openSearch', "click", function () {
 })
 
 $('#controlBtns').delegate('#openShipInput', "click", function () {
-    $('#cards').html(
+    $('#content').html(
         `<form name="shipForm" class="col-12 shipForm">
          <div class="row">
-            <div class="col-7 ui-widget">
-               <input class="form-control col-10" name="shipValues" id="shipValues"/>
+            <div class="col-9 ui-widget">
+               <label for="shipValues">Отгрузить</label>
+               <input class="form-control col-10" name="shipValues" id="shipValues" autocomplete="off"/>
             </div>
-            <div class="col-3">
+            <div class="col-3 text-center">
                Вес: <span class="massInfo">0</span>
             </div>
-            <div class="col-2">
-               <button type="button" class="btn btn-outline-info btn-block mb-2 ship" id="ship">Отгрузить</button>
-            </div>
+         </div>
+         <div class="row mb-3">
+             <label for="account">Исключить</label>
+             <input type="text" class="form-control" name="except" id="except">
+         </div>
+         <div class="row">
+            <button type="button" class="btn btn-outline-info btn-block mb-2 ship" id="ship">Отгрузить</button>
          </div>
       </form>
       <div class="shipContent col-12 row"></div>`);
@@ -423,6 +516,40 @@ $('#controlBtns').delegate("#addMany", "click", function () {
     $('.addManyForm').css('display', 'inline');
 });
 
+$('#content').delegate("#switcher", "click", function(){
+    if (!$("#switcher")[0].checked){
+        $.ajax(
+            {
+                type: 'GET',
+                url: 'http://5.200.47.32:80/api/table',
+                dataType: 'json',
+                success: function(data, textStatus)
+                {
+                    console.log(data);
+                    products = table(data);
+                    $('#cards').html(products);
+                }
+            }
+        )
+    }
+    else {
+        products = "";
+        $.ajax(
+            {
+                type: 'GET',
+                url: 'http://5.200.47.32:80/api/positions',
+                dataType: 'json',
+                success: function(data, textStatus)
+                {
+                    console.log(data);
+                    products = cards(data);
+                    $('#cards').html(products);
+                }
+            }
+        )
+    }
+});
+
 $('.form').delegate('.close-block', 'click', function () {
     $('.form').fadeOut();
 })
@@ -431,7 +558,7 @@ $('.addManyForm').delegate('.close-block-regMany', 'click', function () {
     $('.addManyForm').fadeOut();
 })
 
-$('#cards').delegate('#search', "click", function () {
+$('#content').delegate('#search', "click", function () {
     products = "";
     val = document.forms.searchForm.searchValue.value;
     console.log(val);
@@ -473,18 +600,38 @@ $('#cards').delegate('#search', "click", function () {
     console.log(products);
 })
 
-$('#cards').delegate('#ship', 'click', function () {
+$("#content").delegate("#unite", 'click', function(){
+    $.ajax(
+        {
+            type: "GET",
+            url: `http://5.200.47.32/api/union?ids=${$("#uniteValues").val()}`,
+            success: function(data, textStatus)
+            {
+                console.log(data);
+            },
+            error: function(data, textStatus)
+            {
+                console.log(data);
+                if (data.status == 500){
+                    $(".error2").css('display', 'inline');
+                }
+            }
+        })
+})
+
+$('#content').delegate('#ship', 'click', function(){
+    console.log($("#shipValues").is(":focus"));
     request = document.forms.shipForm.shipValues.value;
-    console.log(request);
-    console.log(`http://5.200.47.32:81/api/departure?request=${request}`);
+    except = $("#except").val();
     $.ajax({
         type: 'POST',
-        url: `http://5.200.47.32:80/api/departure?request=${request}`,
+        url: `http://5.200.47.32:80/api/departure?request=${request}&except=${except}`,
         dataType: 'json',
-        success: function (data, textStatus) {
+        success: function(data, textStatus)
+        {
             console.log(data);
             products = '';
-            data.forEach(function (elem) {
+            data.forEach(function(elem){
                 if (elem.status == 'Departured')
                     status = 'Отгружен';
                 else if (elem.status == 'In_stock')
@@ -507,8 +654,8 @@ $('#cards').delegate('#ship', 'click', function () {
          </div>
      </div><div class='cards col-12 row'>`;
             products = form + products + '</div>';
-            $('#cards').html(products);
-            data.forEach(function (elem) {
+            $('#content').html(products);
+            data.forEach(function(elem){
                 console.log(elem);
                 $(`#mass,#${elem.id} input`).val(`${elem.mass}`);
             })
@@ -516,7 +663,7 @@ $('#cards').delegate('#ship', 'click', function () {
     })
 })
 
-$('#cards').delegate('#depart', 'click', function () {
+$('#content').delegate('#depart', 'click', function () {
     $("#depart").prop("disabled", true);
     contrAgent = document.forms.departureForm.contrAgent.value;
     account = document.forms.departureForm.account.value;
@@ -563,16 +710,10 @@ $('#cards').delegate('#depart', 'click', function () {
                 products += card_to_print(obj.id);
             })
             $("#depart").prop("disabled", false);
-            $('#cards').html(products);
+            $('#content').html(products);
         }
     })
 })
-
-//$('#content').delegate('.product', 'click', function(){
-//   console.log(this.id);
-//   var PageLink = `product.html?id=${this.id}`;
-//   var pwa = window.open(PageLink, '_blank');
-//})
 
 function CodetoPrint(id) {
     str = '';
@@ -700,14 +841,6 @@ function PrintPackage(id) {
     pwa.document.close();
 }
 
-function compare() {
-    if (a < b)
-        return -1;
-    if (a > b)
-        return 1;
-    return 0;
-}
-
 function sorting() {
     console.log($('#sort option:selected').val());
     sort_data = [];
@@ -818,7 +951,7 @@ $(document).on("keypress", 'form', function (e) {
     }
 });
 
-$(function () {
+function fillFilter(){
     var availableTags = ["Моток",
         "К300",
         "Д300",
@@ -826,12 +959,13 @@ $(function () {
         "Д415"]
     $.ajax({
         type: 'GET',
-        url: `http://5.200.47.32/api/position/marks`,
+        url: `http://5.200.47.32:80/api/position/marks`,
         dataType: 'json',
-        success: function (data, textStatus) {
+        success: function(data, textStatus)
+        {
             console.log(data);
             tags = '';
-            data.forEach(function (tag) {
+            data.forEach(function(tag){
                 tags += `<input name="markType" class="form-check-input" type="checkbox" id="${tag}" value="${tag}">
             <label class="form-check-label" for="${tag}">
             ${tag}
@@ -842,9 +976,10 @@ $(function () {
     })
     $.ajax({
         type: 'GET',
-        url: `http://5.200.47.32/api/position/diameter`,
+        url: `http://5.200.47.32:80/api/position/diameter`,
         dataType: 'json',
-        success: function (data, textStatus) {
+        success: function(data, textStatus)
+        {
             console.log(data);
             $("#slider").slider({
                 animate: "slow",
@@ -853,69 +988,83 @@ $(function () {
                 max: parseFloat(data[1]),
                 values: [parseFloat(data[0]), parseFloat(data[1])],
                 step: 0.1,
-                slide: function (event, ui) {
-                    $("#result-slider").text("от " + ui.values[0] + " до " + ui.values[1]);
+                slide : function(event, ui) {
+                    $("#result-slider").text( "от " + ui.values[ 0 ] + " до " + ui.values[ 1 ] );
                 }
             });
-            $("#result-slider").text("от " + $("#slider").slider("values", 0) + " до " + $("#slider").slider("values", 1));
+            $( "#result-slider" ).text("от " + $("#slider").slider("values", 0) + " до " + $("#slider").slider("values", 1));
         }
     })
     tags = '';
-    availableTags.forEach(function (tag) {
+    availableTags.forEach(function(tag){
         tags += `<input name="packingType" class="form-check-input" type="checkbox" id="${tag}" value="${tag}">
       <label class="form-check-label" for="${tag}">
       ${tag}
       </label><div class="w-100"></div>`;
     })
     $('.packing').html(tags);
-})
 
-$('.filter').delegate('#filtrate', 'click', function () {
-    selected_marks = [];
-    selected_packings = [];
-    $("input:checkbox[name=markType]:checked").each(function () {
-        selected_marks.push($(this).val());
-    });
-    $("input:checkbox[name=packingType]:checked").each(function () {
-        selected_packings.push($(this).val());
-    });
-    min = $("#slider").slider("values", 0);
-    max = $("#slider").slider("values", 1);
-    console.log(selected_marks, selected_packings, min, max);
-    object = {
-        "mark": selected_marks,
-        "packing": selected_packings,
-        "DL": min,
-        "DM": max
-    }
-
-    var settings = {
-        "url": "http://5.200.47.32/api/filter",
-        "method": "POST",
-        "timeout": 0,
-        "headers": {
-            "Content-Type": "application/json"
-        },
-        "data": JSON.stringify(object),
-    };
-
-    $.ajax(settings).done(function (response) {
-        console.log(response);
-        products = '';
-        response.forEach(function (product) {
-            if (product.status == 'Departured')
-                status = 'Отгружен';
-            else if (product.status == 'In_stock')
-                status = 'На складе';
-            if (product.comment == '' || product.comment == null)
-                products += card_without_comm(product.id, product.mark, product.diameter, product.packing, product.part, product.plav, product.mass, status);
-            else
-                products += card(product.id, product.mark, product.diameter, product.packing, product.comment, product.part, product.plav, product.mass, status);
-        })
-        $("#cards").html(products);
-    });
-
-})
+    $('.filter').delegate('#filtrate', 'click', function(){
+        selected_marks = [];
+        selected_packings = [];
+        $("input:checkbox[name=markType]:checked").each(function(){
+            selected_marks.push($(this).val());
+        });
+        $("input:checkbox[name=packingType]:checked").each(function(){
+            selected_packings.push($(this).val());
+        });
+        min = $("#slider").slider("values", 0);
+        max = $("#slider").slider("values", 1);
+        object = {
+            "mark": selected_marks,
+            "packing": selected_packings,
+            "DL": min,
+            "DM": max,
+            "table": $("#switcher")[0].checked
+        }
+        console.log(!$("#switcher")[0].checked);
+        if (!$("#switcher")[0].checked){
+            $.ajax({
+                type: 'POST',
+                url: `http://5.200.47.32:80/api/filter/table`,
+                contentType: "application/json; charset=utf-8",
+                data: JSON.stringify(object),
+                dataType: 'json',
+                cache: false,
+                success: function(data, textStatus)
+                {
+                    console.log(data);
+                    products = table(data);
+                    $("#cards").html(products);
+                },
+                error: function(data, textStatus)
+                {
+                    console.log(data);
+                }
+            });
+        }
+        else{
+            $.ajax({
+                type: 'POST',
+                url: `http://5.200.47.32:80/api/filter`,
+                contentType: "application/json; charset=utf-8",
+                data: JSON.stringify(object),
+                dataType: 'json',
+                cache: false,
+                success: function(data, textStatus)
+                {
+                    console.log(data);
+                    products = cards(data);
+                    $("#cards").html(products);
+                },
+                error: function(data, textStatus)
+                {
+                    console.log(data);
+                }
+            })
+        }
+    })
+}
 
 function bind_search() {
     $('#searchValue').keyup(function (event) {
@@ -929,20 +1078,49 @@ function bind_search() {
     })
 }
 
-function bind_ship() {
-    $('#shipValues').keyup(function (event) {
+function bind_ship(){
+    $('#shipValues').keyup(function(event){
         elems = document.querySelectorAll('#ship');
-        console.log('yep');
-        if (event.keyCode == 13 && elems.length != 0) {
+        console.log($("#shipValues").is(':focus'));
+        if (event.keyCode == 13 && elems.length != 0 && $("#shipValues").is(':focus')){
             $(this).val($(this).val() + ', ');
+            console.log($(this).val());
             $.ajax({
                 type: 'GET',
                 url: `http://5.200.47.32/api/departure?query=${$(this).val()}`,
-                success: function (data, textStatus) {
+                success: function(data, textStatus){
                     console.log(data.toFixed(2));
                     $(".massInfo").html(data.toFixed(2));
                 }
             })
+        }
+        return false;
+    })
+    $('#except').keyup(function(event){
+        elems = document.querySelectorAll('#ship');
+        console.log($("#except").is(':focus'));
+        if (event.keyCode == 13 && elems.length != 0 && $("#except").is(':focus')){
+            $(this).val($(this).val() + ', ');
+        }
+        return false;
+    })
+}
+
+function bind_unite(){
+    $('#uniteValues').keyup(function(event){
+        elems = document.querySelectorAll('#unite');
+        if (event.keyCode == 13 && elems.length != 0){
+            $(this).val($(this).val() + ', ');
+        }
+        return false;
+    })
+}
+
+function bind_depart(){
+    $('#departValues').keyup(function(event){
+        elems = document.querySelectorAll('#depart');
+        if (event.keyCode == 13 && elems.length != 0){
+            $(this).val($(this).val() + ', ');
         }
         return false;
     })

@@ -17,7 +17,7 @@ import java.util.Date;
 public class DepartureAction {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long operation_id;
 
     private long source_id;

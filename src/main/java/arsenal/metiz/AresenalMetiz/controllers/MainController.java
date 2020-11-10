@@ -4,6 +4,15 @@ import arsenal.metiz.AresenalMetiz.assets.Database;
 import arsenal.metiz.AresenalMetiz.repo.ArchivedRequestsRepo;
 import arsenal.metiz.AresenalMetiz.repo.OrdersRepository;
 import arsenal.metiz.AresenalMetiz.repo.RequestRepository;
+import com.google.zxing.BarcodeFormat;
+import com.google.zxing.EncodeHintType;
+import com.google.zxing.client.j2se.MatrixToImageWriter;
+import com.google.zxing.common.BitMatrix;
+import com.google.zxing.oned.EAN13Writer;
+import com.google.zxing.qrcode.QRCodeWriter;
+import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel;
+import com.lowagie.text.pdf.parser.Matrix;
+import lombok.SneakyThrows;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
@@ -14,11 +23,15 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.imageio.ImageIO;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Calendar;
+import java.util.Hashtable;
 import java.util.Map;
 
 @Controller
@@ -119,22 +132,40 @@ public class MainController {
         return "result";
     }
 
+    @SneakyThrows
     @GetMapping(value = "/admin/qr",
             produces = MediaType.IMAGE_PNG_VALUE
     )
     public @ResponseBody
     byte[] downloadQr(Model model) throws IOException {
-        StringBuilder qr = new StringBuilder();
-        char[] al = "1234567890qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM".toCharArray();
-        for (int i = 0; i <= 14; i++) {
-            qr.append(al[(int) (Math.random() * al.length)]);
+
+        ByteArrayOutputStream baos = null;
+        for (int j = 0; j < 10000; j++) {
+            String uri = "C:\\qr\\";
+            StringBuilder qr = new StringBuilder();
+            char[] al = "1234567890qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM".toCharArray();
+            for (int i = 0; i <= 16; i++) {
+                qr.append(al[(int) (Math.random() * al.length)]);
+            }
+
+            BufferedImage imageBuff = MatrixToImageWriter.toBufferedImage(generateQRBarcodeImage(qr.toString()));
+            imageBuff = BarcodeController.process(imageBuff, qr.toString());
+            baos = new ByteArrayOutputStream();
+            ImageIO.write(imageBuff, "png", baos);
+
+            FileOutputStream fos = new FileOutputStream(new File(uri + qr.toString() + ".png"));
+            fos.write(baos.toByteArray());
+            fos.flush();
         }
-        BufferedImage image = null;
-        URL url = new URL("https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=" + qr);
-        image = ImageIO.read(url);
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        ImageIO.write(image, "png", baos);
         return baos.toByteArray();
+    }
+
+    public static BitMatrix generateQRBarcodeImage(String barcodeText) throws Exception {
+        QRCodeWriter code128Writer = new QRCodeWriter();
+        Hashtable<EncodeHintType, ErrorCorrectionLevel> hintMap = new Hashtable<EncodeHintType, ErrorCorrectionLevel>();
+        hintMap.put(EncodeHintType.ERROR_CORRECTION, ErrorCorrectionLevel.H);
+        return code128Writer.encode(barcodeText, BarcodeFormat.QR_CODE, 200,
+                200, hintMap);
     }
 
 }
