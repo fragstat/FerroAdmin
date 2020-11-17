@@ -7,7 +7,6 @@ import lombok.NoArgsConstructor;
 import javax.persistence.*;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
@@ -20,7 +19,7 @@ public class DepartureOperation {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private long operation_id;
 
     private String bill;
 
@@ -35,7 +34,7 @@ public class DepartureOperation {
 
     private String date;
 
-    public DepartureOperation(String bill, String customer, String username, ArrayList<WarehousePosition> positions) {
+    public DepartureOperation(String bill, String customer, String username, List<WarehousePosition> positions) {
         this.bill = bill;
         this.customer = customer;
         this.username = username;

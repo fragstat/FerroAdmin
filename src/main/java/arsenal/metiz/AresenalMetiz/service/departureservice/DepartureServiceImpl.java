@@ -122,7 +122,7 @@ public class DepartureServiceImpl implements DepartureService{
         /*
         TODO отображение общих весов в документе
          */
-        return new IdToPrint(listToPrint, DocCreating.createDoc(listToDoc, operation.getId()));
+        return new IdToPrint(listToPrint, DocCreating.createDoc(listToDoc, operation.getOperation_id()));
     }
 
     public WarehousePosition departure(long id, float weight) throws MassException {

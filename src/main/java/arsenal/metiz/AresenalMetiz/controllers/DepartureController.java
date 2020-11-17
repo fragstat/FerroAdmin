@@ -19,7 +19,7 @@ public class DepartureController {
         this.departureService = departureService;
     }
 
-    @GetMapping("/api/departure")
+    @RequestMapping(value = "/api/departure", method = {RequestMethod.POST, RequestMethod.GET})
     public double countWeight(@RequestParam String query, @RequestParam(required = false) String except) {
         return departureService.countWeight(query, except);
     }
