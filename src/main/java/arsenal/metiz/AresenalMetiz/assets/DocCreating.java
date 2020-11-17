@@ -1,7 +1,6 @@
 package arsenal.metiz.AresenalMetiz.assets;
 
 import arsenal.metiz.AresenalMetiz.models.WarehousePosition;
-import com.aspose.words.Document;
 import org.apache.poi.xwpf.usermodel.ParagraphAlignment;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.apache.poi.xwpf.usermodel.XWPFParagraph;
@@ -16,14 +15,14 @@ public class DocCreating {
 
     public static final String UPLOAD_FOLDER = "C:\\Users\\Администратор\\Desktop\\docs\\";
 
-    public static String createDoc(List<WarehousePosition> id) {
-        System.out.println("In doc writer");
+    public static String createDoc(List<WarehousePosition> list, long id) {
+        System.out.println("Writing document...");
         try {
             // создаем модель docx документа,
             // к которой будем прикручивать наполнение (колонтитулы, текст)
             XWPFDocument docxModel = new XWPFDocument();
-            String filename = String.valueOf(System.currentTimeMillis());
-            for (WarehousePosition p : id) {
+            String filename = String.valueOf(id);
+            for (WarehousePosition p : list) {
                 XWPFParagraph bodyParagraph = docxModel.createParagraph();
                 bodyParagraph.setAlignment(ParagraphAlignment.LEFT);
                 XWPFRun paragraphConfig = bodyParagraph.createRun();
@@ -43,8 +42,6 @@ public class DocCreating {
             OutputStream out = new FileOutputStream(new File(UPLOAD_FOLDER + filename + ".docx"));
             docxModel.write(out);
             out.flush();
-            // сохраняем модель docx документа в файл
-            Document doc = new Document(UPLOAD_FOLDER + filename + ".docx");
 
             return filename;
         } catch (Exception e) {

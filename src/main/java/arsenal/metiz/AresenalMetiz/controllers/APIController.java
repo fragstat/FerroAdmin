@@ -52,7 +52,7 @@ public class APIController {
         return code / 10;
     }
 
-    static float round(float value, int n) {
+    public static float round(float value, int n) {
         return Precision.round(value, n);
     }
 

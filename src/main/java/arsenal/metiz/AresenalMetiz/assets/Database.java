@@ -67,6 +67,6 @@ public class Database {
 
     public void Upload(DBCertificate certificate, String qr) throws IOException {
         Firestore db = connect();
-        ApiFuture<WriteResult> future = db.collection("certificates").document(qr).set(certificate);
+        db.collection("certificates").document(qr).set(certificate);
     }
 }

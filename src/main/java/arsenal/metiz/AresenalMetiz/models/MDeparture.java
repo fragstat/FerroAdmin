@@ -9,5 +9,6 @@ public class MDeparture {
 
     private List<SimpleDepartureObj> data;
     private String contrAgent;
-    private Long account;
+    private String account;
+    private Boolean union;
 }
