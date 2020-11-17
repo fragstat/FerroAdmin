@@ -6,7 +6,6 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.springframework.lang.NonNull;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.*;
@@ -37,6 +36,7 @@ public class WarehousePackage {
     @OneToMany(mappedBy = "pack", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<WarehousePosition> positionsList;
 
+    @Transactional(rollbackFor = PositionDataException.class)
     public void attach(WarehousePosition position) throws PositionDataException {
         if (mark == null && position.getPack() == null) {
             positionsList = new ArrayList<>();
@@ -71,6 +71,9 @@ public class WarehousePackage {
         positionsList.remove(position);
         position.setPack(null);
         mass -= position.getMass();
+        if (mass < 0.2) {
+            status = PositionStatus.Departured;
+        }
     }
 
     public void removeFromList(List<WarehousePosition> positions) {
@@ -80,4 +83,28 @@ public class WarehousePackage {
     public void removeAll() {
         positionsList.forEach(this::remove);
     }
+
+    public boolean verify(List<WarehouseAddPosition> positions) {
+        WarehousePackage pkg = new WarehousePackage();
+        for (WarehouseAddPosition position : positions) {
+            if (pkg.mark == null) {
+                pkg.positionsList = new ArrayList<>();
+                pkg.mark = position.getMark();
+                pkg.diameter = position.getDiameter();
+                pkg.packing = position.getPacking();
+                pkg.part = position.getPart();
+                pkg.plav = position.getPlav();
+                pkg.manufacturer = position.getManufacturer();
+                pkg.status = PositionStatus.In_stock;
+            } else if (!pkg.mark.equals(position.getMark()) || !pkg.diameter.equals(position.getDiameter()) ||
+                    !pkg.packing.equals(position.getPacking()) ||
+                    !pkg.part.equals(position.getPart()) || !pkg.plav.equals(position.getPlav()) ||
+                    !pkg.manufacturer.equals(position.getManufacturer()) || pkg.status != PositionStatus.In_stock) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+
 }

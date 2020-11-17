@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.List;
 
 @Controller
 public class WarehouseController {
@@ -58,4 +57,5 @@ public class WarehouseController {
         warehousePackageRepo.save(pack);
         return ResponseEntity.ok(pack.getId());
     }
+
 }

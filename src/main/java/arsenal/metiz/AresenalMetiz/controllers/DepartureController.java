@@ -6,14 +6,14 @@ import arsenal.metiz.AresenalMetiz.assets.MassException;
 import arsenal.metiz.AresenalMetiz.assets.PositionStatus;
 import arsenal.metiz.AresenalMetiz.models.*;
 import arsenal.metiz.AresenalMetiz.repo.DepartureActionRepo;
+import arsenal.metiz.AresenalMetiz.repo.DepartureOperationRepo;
 import arsenal.metiz.AresenalMetiz.repo.WarehouseRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.util.*;
 
 import static arsenal.metiz.AresenalMetiz.controllers.APIController.*;
@@ -27,6 +27,9 @@ public class DepartureController {
     @Autowired
     DepartureActionRepo departure;
 
+    @Autowired
+    DepartureOperationRepo departureOperationRepo;
+
     Iterable<WarehousePosition> allPositions;
 
     public void updateTags() {
@@ -35,6 +38,9 @@ public class DepartureController {
 
     @GetMapping("/api/departure")
     public double countWeight(@RequestParam String query, @RequestParam(required = false) String except) {
+        if (except == null) {
+            except = "";
+        }
         double weight;
         String[] positions = query.split(",");
         updateTags();
@@ -83,16 +89,17 @@ public class DepartureController {
 
     @PostMapping("/api/departureConfirmation")
     public @ResponseBody
-    IdToPrint confirmDeparture(@RequestBody MDeparture departure, Authentication auth) {
+    IdToPrint confirmDeparture(@RequestBody MDeparture departure, Principal principal) {
         var data = departure.getData();
         String contrAgent = departure.getContrAgent();
         List<Long> id = new ArrayList<>();
-        long account = departure.getAccount();
+        Long account = departure.getAccount();
+        System.out.println(account);
         ArrayList<WarehousePosition> list = new ArrayList<>();
         for (SimpleDepartureObj o : data) {
             try {
                 System.out.println(o.getId() + " " + o.getWeight());
-                WarehousePosition afterDeparture = departure(o.getId(), o.getWeight(), contrAgent, account, auth.getName());
+                WarehousePosition afterDeparture = departure(o.getId(), o.getWeight(), contrAgent, account, "");
                 if (afterDeparture != null) {
                     list.add(afterDeparture);
                     if (o.getId() != afterDeparture.getId()) {
@@ -170,14 +177,6 @@ public class DepartureController {
         departure.save(action);
         updateTags();
         return newPosition;
-    }
-
-    private String getAuthedUserName() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (!(authentication instanceof AnonymousAuthenticationToken)) {
-            return authentication.getName();
-        }
-        return "no info";
     }
 
     private void removeFromPackage(WarehousePosition p) {

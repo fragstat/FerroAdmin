@@ -8,10 +8,8 @@ import com.google.zxing.BarcodeFormat;
 import com.google.zxing.EncodeHintType;
 import com.google.zxing.client.j2se.MatrixToImageWriter;
 import com.google.zxing.common.BitMatrix;
-import com.google.zxing.oned.EAN13Writer;
 import com.google.zxing.qrcode.QRCodeWriter;
 import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel;
-import com.lowagie.text.pdf.parser.Matrix;
 import lombok.SneakyThrows;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
@@ -23,13 +21,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.imageio.ImageIO;
-import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.net.URL;
 import java.util.Calendar;
 import java.util.Hashtable;
 import java.util.Map;
@@ -140,7 +136,7 @@ public class MainController {
     byte[] downloadQr(Model model) throws IOException {
 
         ByteArrayOutputStream baos = null;
-        for (int j = 0; j < 10000; j++) {
+        for (int j = 0; j < 20000; j++) {
             String uri = "C:\\qr\\";
             StringBuilder qr = new StringBuilder();
             char[] al = "1234567890qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM".toCharArray();

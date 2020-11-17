@@ -255,7 +255,7 @@ function card_for_many_reg(checkMark, checkDiameter, checkPacking, checkPart, ch
     else
         card += `<div class="row col-12">
       <label for="mass">Вес</label>
-      <input class="form-control" name="mass" id="mass" />
+      <input class="form-control regManyMass" name="mass" id="mass" onchange="addManyOnChange(); return false;"/>
       </div>`;
     if (checkManufacturer)
         card += `<p class="card-text">Производитель: ${manufacturer}</p>`;
@@ -286,101 +286,125 @@ $('.addManyForm').delegate("#addMany", "click", function () {
     manufacturer = document.forms.regManyForm.manufacturerMany.value;
     count = document.forms.regManyForm.number.value;
     console.log(mark, diameter, packing, plav, part, mass, comment, manufacturer);
-    $('.addManyForm').fadeOut();
-    checked = [];
-    elems = $("input:checkbox[name=addManyFormCheck]:checked");
-    for (i = 0; i < elems.length; i++) {
-        checked.push(elems[i].id);
-    }
-    console.log(checked);
-    products = '';
-    product = card_for_many_reg(checked.includes('mark'), checked.includes('diameter'), checked.includes('packing'), checked.includes('part'),
-        checked.includes('plav'), checked.includes('mass'), checked.includes('manufacturer'), checked.includes('comment'), mark, diameter, packing,
-        part, plav, mass, manufacturer, comment);
-    for (i = 0; i < count; i++) {
-        products += product;
-    }
-    btn = `<button class="btn btn-outline-success btn-block" id="regMany">Зарегистрировать</button>`;
-    $("#content").html(btn + products);
-    $("#content").unbind('click').delegate('#regMany', 'click', function () {
-        $("#regMany").prop("disabled", true);
-        elems = $('.productInput');
-        objs = [];
-        for (i = 0; i < elems.length; i++) {
-            if (checked.includes('mark'))
-                queryMark = mark;
-            else
-                queryMark = $(elems[i].lastChild).find('#mark')[0].value;
-
-            if (checked.includes('diameter'))
-                queryDiameter = diameter;
-            else
-                queryDiameter = $(elems[i].lastChild).find('#diameter')[0].value;
-
-            if (checked.includes('packing'))
-                queryPacking = packing;
-            else
-                queryPacking = $(elems[i].lastChild).find('#packing')[0].value;
-
-            if (checked.includes('part'))
-                queryPart = part;
-            else
-                queryPart = $(elems[i].lastChild).find('#part')[0].value;
-
-            if (checked.includes('plav'))
-                queryPlav = plav;
-            else
-                queryPlav = $(elems[i].lastChild).find('#plav')[0].value;
-
-            if (checked.includes('mass'))
-                queryMass = mass;
-            else
-                queryMass = $(elems[i].lastChild).find('#mass')[0].value;
-
-            if (checked.includes('manufacturer'))
-                queryManufacturer = manufacturer;
-            else
-                queryManufacturer = $(elems[i].lastChild).find('#manufacturer')[0].value;
-
-            if (checked.includes('comment'))
-                queryComment = comment;
-            else
-                queryComment = $(elems[i].lastChild).find('#comment')[0].value;
-            queryMass = parseFloat(queryMass.replaceAll(',', '.'));
-            console.log(queryMark, queryDiameter, queryPacking, queryPart, queryPlav, queryMass, queryManufacturer, queryComment);
-            obj = {
-                "mark": queryMark,
-                "diameter": queryDiameter,
-                "packing": queryPacking,
-                "comment": queryComment,
-                "part": queryPart,
-                "plav": queryPlav,
-                "manufacturer": queryManufacturer,
-                "mass": queryMass
-            }
-            objs.push(obj);
-        }
-        console.log(objs);
-        $.ajax({
+    object = {
+        "part": part,
+        "mark": mark,
+        "diameter": diameter,
+        "plav": plav
+    };
+    $.ajax(
+        {
             type: 'POST',
-            url: `http://5.200.47.32:80/api/multipleAdd`,
+            url: `http://ferro-trade.ru/api/add/validate`,
             contentType: "application/json; charset=utf-8",
-            data: JSON.stringify(objs),
             dataType: 'json',
+            data: JSON.stringify(object),
             success: function (data, textStatus) {
                 console.log(data);
-                products = ``;
-                products = `<div class="row col-12"><button class="btn btn-outline-info btn-block mb-2" onclick="PrintCode(${data.id}); return false;">Распечатать все</button></div>
-             <div class="row col-12"><button class="btn btn-outline-info btn-block mb-2" onclick="PrintPackage(${data.package}); return false;">Распечатать код поддона</button></div>`;
-                data.id.forEach(function (id) {
-                    products += card_to_print(id);
-                })
-                console.log(products);
-                $("#regMany").prop("disabled", false);
-                $("#content").html(products);
+                if (data) {
+                    $('.addManyForm').fadeOut();
+                    checked = [];
+                    elems = $("input:checkbox[name=addManyFormCheck]:checked");
+                    for (i = 0; i < elems.length; i++) {
+                        checked.push(elems[i].id);
+                        elems[i].checked = false;
+                        $(`#${elems[i].id + 'Many'}`).prop('disabled', 'true');
+                    }
+                    console.log(checked);
+                    products = '';
+                    product = card_for_many_reg(checked.includes('mark'), checked.includes('diameter'), checked.includes('packing'), checked.includes('part'),
+                        checked.includes('plav'), checked.includes('mass'), checked.includes('manufacturer'), checked.includes('comment'), mark, diameter, packing,
+                        part, plav, mass, manufacturer, comment);
+                    for (i = 0; i < count; i++) {
+                        products += product;
+                    }
+                    btn = `<div class="row col-12">
+                    <button class="btn btn-outline-success btn-block col-10" id="regMany">Зарегистрировать</button>
+                    <div class="col-2 text-center">Вес: <span class="addManyMass">0</span></div>
+                    </div>`;
+                    $("#content").html(btn + products);
+                    $("#content").unbind('click').delegate('#regMany', 'click', function () {
+                        $("#regMany").prop("disabled", true);
+                        elems = $('.productInput');
+                        objs = [];
+                        for (i = 0; i < elems.length; i++) {
+                            if (checked.includes('mark'))
+                                queryMark = mark;
+                            else
+                                queryMark = $(elems[i].lastChild).find('#mark')[0].value;
+
+                            if (checked.includes('diameter'))
+                                queryDiameter = diameter;
+                            else
+                                queryDiameter = $(elems[i].lastChild).find('#diameter')[0].value;
+
+                            if (checked.includes('packing'))
+                                queryPacking = packing;
+                            else
+                                queryPacking = $(elems[i].lastChild).find('#packing')[0].value;
+
+                            if (checked.includes('part'))
+                                queryPart = part;
+                            else
+                                queryPart = $(elems[i].lastChild).find('#part')[0].value;
+
+                            if (checked.includes('plav'))
+                                queryPlav = plav;
+                            else
+                                queryPlav = $(elems[i].lastChild).find('#plav')[0].value;
+
+                            if (checked.includes('mass'))
+                                queryMass = mass;
+                            else
+                                queryMass = $(elems[i].lastChild).find('#mass')[0].value;
+
+                            if (checked.includes('manufacturer'))
+                                queryManufacturer = manufacturer;
+                            else
+                                queryManufacturer = $(elems[i].lastChild).find('#manufacturer')[0].value;
+
+                            if (checked.includes('comment'))
+                                queryComment = comment;
+                            else
+                                queryComment = $(elems[i].lastChild).find('#comment')[0].value;
+                            queryMass = parseFloat(queryMass.replaceAll(',', '.'));
+                            console.log(queryMark, queryDiameter, queryPacking, queryPart, queryPlav, queryMass, queryManufacturer, queryComment);
+                            obj = {
+                                "mark": queryMark,
+                                "diameter": queryDiameter,
+                                "packing": queryPacking,
+                                "comment": queryComment,
+                                "part": queryPart,
+                                "plav": queryPlav,
+                                "manufacturer": queryManufacturer,
+                                "mass": queryMass
+                            }
+                            objs.push(obj);
+                        }
+                        console.log(objs);
+                        $.ajax({
+                            type: 'POST',
+                            url: `http://5.200.47.32:80/api/multipleAdd`,
+                            contentType: "application/json; charset=utf-8",
+                            data: JSON.stringify(objs),
+                            dataType: 'json',
+                            success: function (data, textStatus) {
+                                console.log(data);
+                                products = `<div class="row col-12"><button class="btn btn-outline-info btn-block mb-2" onclick="PrintCode(${data.id}); return false;">Распечатать позиции</button></div>
+                     <div class="row col-12"><button class="btn btn-outline-info btn-block mb-2" onclick="PrintPackage(${data.package}); return false;">Распечатать поддон</button></div>`;
+                                data.id.forEach(function (id) {
+                                    products += card_to_print(id);
+                                })
+                                $("#regMany").prop("disabled", false);
+                                $("#content").html(products);
+                            }
+                        })
+                    })
+                } else {
+                    $(".partError").css('display', 'inline');
+                }
             }
         })
-    })
 })
 
 $('#controlBtns').delegate('#all', "click", function(){
@@ -577,15 +601,15 @@ $('#content').delegate('#search', "click", function () {
                         status = 'На складе';
                     if (elem.type == 'POSITION') {
                         if (elem.comment == null || elem.comment == "") {
-                            products = products + card_without_comm(elem.id, elem.mark, elem.diameter, elem.packing, elem.part, elem.plav, elem.mass, status);
+                            products = products + card_without_comm(elem.id, elem.mark, elem.diameter, elem.packing, elem.part, elem.plav, elem.mass.toFixed(2), status);
                         } else {
-                            products = products + card(elem.id, elem.mark, elem.diameter, elem.packing, elem.comment, elem.part, elem.plav, elem.mass, status);
+                            products = products + card(elem.id, elem.mark, elem.diameter, elem.packing, elem.comment, elem.part, elem.plav, elem.mass.toFixed(2), status);
                         }
                     } else {
                         if (elem.comment == null || elem.comment == "") {
-                            products = products + pack_without_comm(elem.id, elem.mark, elem.diameter, elem.packing, elem.part, elem.plav, elem.mass, status);
+                            products = products + pack_without_comm(elem.id, elem.mark, elem.diameter, elem.packing, elem.part, elem.plav, elem.mass.toFixed(2), status);
                         } else {
-                            products = products + pack(elem.id, elem.mark, elem.diameter, elem.packing, elem.comment, elem.part, elem.plav, elem.mass, status);
+                            products = products + pack(elem.id, elem.mark, elem.diameter, elem.packing, elem.comment, elem.part, elem.plav, elem.mass.toFixed(2), status);
                         }
                     }
                 });
@@ -1116,12 +1140,27 @@ function bind_unite(){
     })
 }
 
-function bind_depart(){
-    $('#departValues').keyup(function(event){
+function bind_depart() {
+    $('#departValues').keyup(function (event) {
         elems = document.querySelectorAll('#depart');
-        if (event.keyCode == 13 && elems.length != 0){
+        if (event.keyCode == 13 && elems.length != 0) {
             $(this).val($(this).val() + ', ');
         }
         return false;
     })
+}
+
+function addManyOnChange() {
+    mass = 0;
+    $(".regManyMass").each(function () {
+        cur = parseFloat($(this).val().replaceAll(',', '.'));
+        if (!isNaN(cur)) {
+            mass += cur;
+        }
+        console.log($(this).val());
+        console.log($(this).val().replaceAll(',', '.'));
+        console.log(parseFloat($(this).val().replaceAll(',', '.')));
+    });
+    console.log(mass);
+    $(".addManyMass").html(mass);
 }
