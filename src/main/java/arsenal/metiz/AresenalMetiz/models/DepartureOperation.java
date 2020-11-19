@@ -40,6 +40,7 @@ public class DepartureOperation {
         this.username = username;
         this.positions = positions;
         this.date = dateFormat.format(Calendar.getInstance().getTime());
+        this.weight = (float) positions.stream().mapToDouble(WarehousePosition::getMass).sum();
     }
 }
 
