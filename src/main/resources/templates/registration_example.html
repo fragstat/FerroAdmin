@@ -114,7 +114,7 @@
                           <input class="addManyFormCheck mt-2 ml-2" id="mark" name="addManyFormCheck" type="checkbox">
                         </span>
                                 <input autocomplete="off" class="form-control ui-autocomplete-input" id="markMany"
-                                       name="markMany" placeholder="" required="" type="text" value="">
+                                       disabled name="markMany" placeholder="" required="" type="text" value="">
                             </div>
                             <div class="col-md-6 mb-3">
                         <span class="row pl-3">
@@ -122,7 +122,7 @@
                           <input class="addManyFormCheck mt-2 ml-2" id="diameter" name="addManyFormCheck"
                                  type="checkbox">
                         </span>
-                                <input class="form-control" id="diameterMany" name="diameterMany"/>
+                                <input class="form-control" disabled id="diameterMany" name="diameterMany"/>
                             </div>
                         </div>
                         <div class="row">
@@ -132,7 +132,7 @@
                           <input class="addManyFormCheck mt-2 ml-2" id="packing" name="addManyFormCheck"
                                  type="checkbox">
                         </span>
-                                <select class="form-control" id="packingMany" name="packingMany">
+                                <select class="form-control" disabled id="packingMany" name="packingMany">
                                     <option>Моток</option>
                                     <option>К300</option>
                                     <option>Д300</option>
@@ -145,7 +145,7 @@
                           <label for="plav">Плавка</label>
                           <input class="addManyFormCheck mt-2 ml-2" id="plav" name="addManyFormCheck" type="checkbox">
                         </span>
-                                <input class="form-control" id="plavMany" name="plavMany"/>
+                                <input class="form-control" disabled id="plavMany" name="plavMany"/>
                             </div>
                         </div>
                         <div class="row">
@@ -154,14 +154,14 @@
                           <label for="part">Партия</label>
                           <input class="addManyFormCheck mt-2 ml-2" id="part" name="addManyFormCheck" type="checkbox">
                         </span>
-                                <input class="form-control" id="partMany" name="partMany"/>
+                                <input class="form-control" disabled id="partMany" name="partMany"/>
                             </div>
                             <div class="col-md-6 mb-3">
                         <span class="row pl-3">
                           <label for="mass">Вес</label>
                           <input class="addManyFormCheck mt-2 ml-2" id="mass" name="addManyFormCheck" type="checkbox">
                         </span>
-                                <input class="form-control" id="massMany" name="massMany"/>
+                                <input class="form-control" disabled id="massMany" name="massMany"/>
                             </div>
                         </div>
                         <div class="row">
@@ -173,7 +173,7 @@
                         </span>
                                 <input autocomplete="off" class="form-control ui-autocomplete-input"
                                        id="manufacturerMany" name="manufacturerMany" oninput='help_man();'
-                                       placeholder="" required="" type="text" value="">
+                                       disabled placeholder="" required="" type="text" value="">
                             </div>
                             <div class="col-3">
                                 <label for="number">Кол-во</label>
@@ -186,7 +186,7 @@
                         <input class="addManyFormCheck mt-2 ml-2" id="comment" name="addManyFormCheck" type="checkbox">
                       </span>
                             <textarea class="form-control" id="commentMany" name="commentMany" rows="3"
-                                      style="margin-top: 0px; margin-bottom: 0px; height: 79px;"></textarea>
+                                      disabled style="margin-top: 0px; margin-bottom: 0px; height: 79px;"></textarea>
                         </div>
                     </div>
                 </form>
@@ -195,8 +195,8 @@
         </div>
     </div>
     <div class="row mt-2">
-        <div class="col-2" id="controlBtns">
-            <button class="btn btn-outline-info btn-block mb-2 mainBtns add" id="add"
+        <div class="col-md-2 col-sm-12" id="controlBtns">
+            <button class="btn btn-outline-info btn-block mb-2 mainBtns hidden-sm add" id="add"
                     sec:authorize="hasAnyRole('ROLE_USER', 'ROLE_ADMIN')">Добавить
             </button>
             <button class="btn btn-outline-info btn-block mb-2 mainBtns addMany" id="addMany"
@@ -208,17 +208,20 @@
             <button class="btn btn-outline-info btn-block mb-2 mainBtns openSearch" id="openSearch"
                     sec:authorize="hasAnyRole('ROLE_USER', 'ROLE_ADMIN', 'ROLE_SELLER')">Поиск
             </button>
-            <button class="btn btn-outline-info btn-block mb-2 mainBtns unite" id="unite"
+            <button class="btn btn-outline-info btn-block mb-2 mainBtns hidden-sm unite" id="unite"
                     sec:authorize="hasAnyRole('ROLE_USER', 'ROLE_ADMIN')">Объединить
             </button>
             <button class="btn btn-outline-info btn-block mb-2 mainBtns openShipInput" id="openShipInput"
                     sec:authorize="hasAnyRole('ROLE_USER', 'ROLE_ADMIN')">Отгрузка
             </button>
+            <button class="btn btn-outline-info btn-block mb-2 mainBtns hidden-sm openShipHistory" id="openShipHistory">
+                История отгрузкок
+            </button>
             <button class="btn btn-outline-info btn-block mb-2 mainBtns hide d-none" id="hide"
                     sec:authorize="hasAnyRole('ROLE_USER', 'ROLE_ADMIN')">Скрыть все
             </button>
         </div>
-        <div class="row col-10" id="content">
+        <div class="row col-md-10 col-sm-12" id="content">
 
         </div>
     </div>

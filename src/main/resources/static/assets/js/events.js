@@ -75,7 +75,7 @@ function table(data){
     </tr>
     </thead>
     <tbody>`;
-    for (i = 0; i < data.length; i++){
+    for (i = 0; i < data.length; i++) {
         products += `<tr><th>${i + 1}</th><td>${data[i].mark}</td><td>${data[i].diameter}</td>
        <td>${data[i].packing}</td><td>${data[i].mass.toFixed(2)}</td></tr>`;
     }
@@ -83,15 +83,34 @@ function table(data){
     return products;
 }
 
-function cards(data){
+function table_for_history(data) {
+    products = `<div class="table-responsive"><table class="table table-sm">
+   <thead>
+   <tr>
+      <th scope="col">Номер отгрузки</th>
+      <th scope="col">Номер счёта</th>
+      <th scope="col">Агент</th>
+      <th scope="col">Дата</th>
+      <th scope="col">Масса</th>
+   </tr>
+   </thead>
+   <tbody>`;
+    for (i = 0; i < data.length; i++) {
+        products += `<tr><th>${data[i].id}</th><td>${data[i].bill}</td><td>${data[i].contrAgent}</td>
+      <td>${data[i].date}</td><td>${data[i].mass.toFixed(2)}</td></tr>`;
+    }
+    products += '</tbody></table></div>';
+    return products;
+}
+
+function cards(data) {
     products = '';
-    data.forEach(function(elem)
-    {
+    data.forEach(function (elem) {
         if (elem.status == 'Departured')
             status = 'Отгружен';
         else if (elem.status == 'In_stock')
             status = 'На складе';
-        if (elem.comment == null || elem.comment == ""){
+        if (elem.comment == null || elem.comment == "") {
             products = products + card_without_comm(elem.id, elem.mark, elem.diameter, elem.packing, elem.part, elem.plav, elem.mass, status);
         }
         else{
@@ -102,9 +121,9 @@ function cards(data){
 }
 
 function pack(id, mark, diameter, packing, comment, part, plav, mass, status) {
-    return `<a href="package?id=${id}" class="card product mx-1 my-1" style="width:30%" id="${id}" target="_blank">
-        <div class="card-body p-3"> 
-            <div class="col-12 text-center" style="font-size: 19px;">Поддон</div>
+    return `<div class="col-md-4 col-sm-6 col-6 p-1"><a href="package?id=${id}" class="card product col-12 p-0" target="_blank" id="${id}">
+         <div class="card-body p-1"> 
+             <div class="col-12 text-center">Поддон</div>
             <p class="card-text">Марка: ${mark}</p>
             <p class="card-text">Диаметр: ${diameter}</p>
             <p class="card-text">Упаковка: ${packing}</p>
@@ -114,13 +133,13 @@ function pack(id, mark, diameter, packing, comment, part, plav, mass, status) {
             <p class="card-text">Статус: ${status}</p>
             <p class="card-text">Комментарий: ${comment}</p>
         </div>
-    </a>`;
+    </a></div>`;
 }
 
 function pack_without_comm(id, mark, diameter, packing, part, plav, mass, status) {
-    return `<a href="package?id=${id}" class="card product mx-1 my-1" style="width:30%" id="${id}" target="_blank">
-        <div class="card-body p-3"> 
-            <div class="col-12 text-center" style="font-size: 19px;">Поддон</div>
+    return `<div class="col-md-4 col-sm-6 col-6 p-1"><a href="package?id=${id}" class="card product col-12 p-0" target="_blank" id="${id}">
+         <div class="card-body p-1"> 
+             <div class="col-12 text-center">Поддон</div>
             <p class="card-text">Марка: ${mark}</p>
             <p class="card-text">Диаметр: ${diameter}</p>
             <p class="card-text">Упаковка: ${packing}</p>
@@ -129,13 +148,13 @@ function pack_without_comm(id, mark, diameter, packing, part, plav, mass, status
             <p class="card-text">Вес: ${mass}</p>
             <p class="card-text">Статус: ${status}</p>
         </div>
-    </a>`;
+    </a></div>`;
 }
 
 function card(id, mark, diameter, packing, comment, part, plav, mass, status) {
-    return `<a href="product?id=${id}" class="card product mx-1 my-1" style="width:30%" id="${id}" target="_blank">
-        <div class="card-body p-3"> 
-            <div class="col-12 text-center" style="font-size: 19px;">Позиция</div>
+    return `<div class="col-md-4 p-1"><a href="product?id=${id}" class="card product col-12 p-0" id="${id}">
+     <div class="card-body p-1">
+         <div class="col-12 text-center">Позиция</div>
             <p class="card-text">Марка: ${mark}</p>
             <p class="card-text">Диаметр: ${diameter}</p>
             <p class="card-text">Упаковка: ${packing}</p>
@@ -145,13 +164,13 @@ function card(id, mark, diameter, packing, comment, part, plav, mass, status) {
             <p class="card-text">Статус: ${status}</p>
             <p class="card-text">Комментарий: ${comment}</p>
         </div>
-    </a>`;
+    </a></div>`;
 }
 
 function card_without_comm(id, mark, diameter, packing, part, plav, mass, status) {
-    return `<a href="product?id=${id}" class="card product mx-1 my-1" style="width:30%" id="${id}" target="_blank">
-        <div class="card-body p-3"> 
-            <div class="col-12 text-center" style="font-size: 19px;">Позиция</div> 
+    return `<div class="col-md-4 col-sm-6 col-6 p-1"><a href="product?id=${id}" class="card product col-12 p-0" target="_blank" id="${id}">
+         <div class="card-body p-1">
+             <div class="col-12 text-center">Позиция</div>
             <p class="card-text">Марка: ${mark}</p>
             <p class="card-text">Диаметр: ${diameter}</p>
             <p class="card-text">Упаковка: ${packing}</p>
@@ -160,11 +179,11 @@ function card_without_comm(id, mark, diameter, packing, part, plav, mass, status
             <p class="card-text">Вес: ${mass}</p>
             <p class="card-text">Статус: ${status}</p>
         </div>
-    </a>`;
+    </a></div>`;
 }
 
 function card_depart(id, mark, diameter, packing, part, plav, mass, status) {
-    return `<div class="card product mx-1 my-1" style="width:30%" id="${id}">
+    return `<div class="col-md-4 col-sm-6 col-6 p-1"><div class="card product" id="${id}">
         <div class="card-body"> 
             <p class="card-text">Марка: ${mark}</p>
             <p class="card-text">Диаметр: ${diameter}</p>
@@ -176,7 +195,7 @@ function card_depart(id, mark, diameter, packing, part, plav, mass, status) {
             <label for="mass">Масса отгрузки</label>
             <input class="mass form-control col-10" name="mass" id="mass ${id}"/>
         </div>
-    </div>`;
+    </div></div>`;
 }
 
 function card_to_print(id) {
@@ -214,7 +233,7 @@ function card_to_print(id) {
 }
 
 function card_for_many_reg(checkMark, checkDiameter, checkPacking, checkPart, checkPlav, checkMass, checkManufacturer, checkComment, mark, diameter, packing, part, plav, mass, manufacturer, comment) {
-    card = `<div class="card productInput mx-1 my-1" style="width:30%"><div class="card-body">`;
+    card = `<div class="col-md-4 col-sm-6 col-6 p-1"><div class="card productInput"><div class="card-body p-1">`;
     if (checkMark)
         card += `<p class="card-text">Марка: ${mark}</p>`;
     else
@@ -271,8 +290,21 @@ function card_for_many_reg(checkMark, checkDiameter, checkPacking, checkPart, ch
       <label for="comment">Комментарий</label>
       <input class="form-control" name="comment" id="comment" />
       </div>`;
-    return card + `</div></div>`;
+    return card + `</div></div></div>`;
 }
+
+$('.addManyFormCheck').on('change', function () {
+    $('input[name="addManyFormCheck"]').val($(this).is(':checked') ? 'true' : 'false');
+});
+
+$(".addManyForm").delegate('.addManyFormCheck', 'click', function () {
+    console.log($(this).is(':checked'), $(this).attr('id'));
+    id = $(this).attr('id') + 'Many';
+    if ($(this).is(':checked'))
+        $(`#${id}`).prop('disabled', false);
+    else
+        $(`#${id}`).prop('disabled', true);
+})
 
 $('.addManyForm').delegate("#addMany", "click", function () {
     console.log('works');
@@ -411,7 +443,7 @@ $('#controlBtns').delegate('#all', "click", function(){
     $("#content").html(`
    <div class="col-9 column">
       <div class="sortSwitch row">
-      <div class="sortFilter mr-5">
+      <div class="sortFilter mr-5 col-3">
          <label for="sort">Сортировка</label>
          <select name="sort form-control" onchange="sorting()" id="sort">
             <option value="mark">Марка</option>
@@ -523,6 +555,23 @@ $('#controlBtns').delegate('#openShipInput', "click", function () {
       </form>
       <div class="shipContent col-12 row"></div>`);
     bind_ship();
+})
+
+$('#controlBtns').delegate('#openShipHistory', "click", function () {
+    historyTable = '';
+    $.ajax(
+        {
+            type: 'GET',
+            url: `http://ferro-trade.ru/api/history/all`,
+            dataType: 'json',
+            async: false,
+            success: function (data, textStatus) {
+                console.log(data);
+                historyTable += table_for_history(data);
+                $('#content').html(historyTable);
+            }
+        }
+    )
 })
 
 $('#controlBtns').delegate('#hide', 'click', function () {
