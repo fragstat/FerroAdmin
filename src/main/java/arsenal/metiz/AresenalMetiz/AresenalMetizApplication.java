@@ -9,5 +9,4 @@ public class AresenalMetizApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(AresenalMetizApplication.class, args);
 	}
-
 }

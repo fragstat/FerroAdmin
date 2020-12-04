@@ -10,4 +10,5 @@ public interface HistoryService {
 
     HistoryView getHistoryById(Long id);
 
+    HistoryView getHistoryByDepartureId(Long id);
 }

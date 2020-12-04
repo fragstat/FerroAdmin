@@ -39,8 +39,13 @@ public class HistoryServiceImpl implements HistoryService {
         return map(departureOperationDao.findByPositionsContains(position));
     }
 
+    @Override
+    public HistoryView getHistoryByDepartureId(Long id) {
+        return map(departureOperationDao.findById(id).get());
+    }
+
     private HistoryView map(DepartureOperation operation) {
         return new HistoryView(operation.getOperation_id(), operation.getBill(), operation.getCustomer(),
-                operation.getDate(), operation.getWeight());
+                operation.getDate(), operation.getWeight(), operation.getPositions());
     }
 }

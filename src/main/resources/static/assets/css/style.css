@@ -18,6 +18,16 @@
     background-color: white;
 }
 
+.updateForm {
+    z-index: 10;
+    border: 1px solid black;
+    width: 50%;
+    position: absolute;
+    margin: 10% 25%;
+    display: none;
+    background-color: white;
+}
+
 .mainBtns {
     padding-top: 15px;
     padding-bottom: 15px;
@@ -50,6 +60,11 @@
         padding: 10px;
     }
 
+    .updateForm {
+        border-radius: 10px;
+        padding: 10px;
+    }
+
     .mainBtns {
         padding-top: 15px;
         padding-bottom: 15px;
@@ -69,6 +84,13 @@
     }
 
     .addManyForm {
+        border-radius: 5px;
+        padding: 2px;
+        width: 90%;
+        margin: 5% 1%;
+    }
+
+    .updateForm {
         border-radius: 5px;
         padding: 2px;
         width: 90%;

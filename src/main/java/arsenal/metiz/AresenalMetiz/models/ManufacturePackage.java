@@ -17,7 +17,7 @@ import java.util.List;
 @Entity
 @Getter
 @Setter
-public class WarehousePackage {
+public class ManufacturePackage {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
@@ -34,10 +34,10 @@ public class WarehousePackage {
     private double mass = 0.0;
 
     @OneToMany(mappedBy = "pack", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    private List<WarehousePosition> positionsList;
+    private List<ManufacturePosition> positionsList;
 
     @Transactional(rollbackFor = PositionDataException.class)
-    public void attach(WarehousePosition position) throws PositionDataException {
+    public void attach(ManufacturePosition position) throws PositionDataException {
         if (mark == null && position.getPack() == null) {
             positionsList = new ArrayList<>();
             mark = position.getMark();
@@ -63,11 +63,11 @@ public class WarehousePackage {
     }
 
     @Transactional(rollbackFor = PositionDataException.class)
-    public void attachAll(List<WarehousePosition> positions) {
+    public void attachAll(List<ManufacturePosition> positions) {
         positions.forEach(this::attach);
     }
 
-    public void remove(WarehousePosition position) {
+    public void remove(ManufacturePosition position) {
         positionsList.remove(position);
         position.setPack(null);
         mass -= position.getMass();
@@ -76,7 +76,7 @@ public class WarehousePackage {
         }
     }
 
-    public void removeFromList(List<WarehousePosition> positions) {
+    public void removeFromList(List<ManufacturePosition> positions) {
         positions.forEach(this::remove);
     }
 
@@ -85,30 +85,7 @@ public class WarehousePackage {
     }
 
     private void countWeight() {
-        this.mass = positionsList.stream().mapToDouble(WarehousePosition::getMass).sum();
+        this.mass = positionsList.stream().mapToDouble(ManufacturePosition::getMass).sum();
     }
-
-    public boolean verify(List<WarehouseAddPosition> positions) {
-        WarehousePackage pkg = new WarehousePackage();
-        for (WarehouseAddPosition position : positions) {
-            if (pkg.mark == null) {
-                pkg.positionsList = new ArrayList<>();
-                pkg.mark = position.getMark();
-                pkg.diameter = position.getDiameter();
-                pkg.packing = position.getPacking();
-                pkg.part = position.getPart();
-                pkg.plav = position.getPlav();
-                pkg.manufacturer = position.getManufacturer();
-                pkg.status = PositionStatus.In_stock;
-            } else if (!pkg.mark.equals(position.getMark()) || !pkg.diameter.equals(position.getDiameter()) ||
-                    !pkg.packing.equals(position.getPacking()) ||
-                    !pkg.part.equals(position.getPart()) || !pkg.plav.equals(position.getPlav()) ||
-                    !pkg.manufacturer.equals(position.getManufacturer()) || pkg.status != PositionStatus.In_stock) {
-                return false;
-            }
-        }
-        return true;
-    }
-
 
 }

@@ -11,6 +11,7 @@ import com.google.zxing.common.BitMatrix;
 import com.google.zxing.qrcode.QRCodeWriter;
 import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel;
 import lombok.SneakyThrows;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
@@ -37,6 +38,7 @@ public class MainController {
     private final ArchivedRequestsRepo archivedRequestsRepo;
     private final OrdersRepository ordersRepository;
 
+    @Autowired
     public MainController(RequestRepository requestRepository, ArchivedRequestsRepo archivedRequestsRepo,
                           OrdersRepository ordersRepository) {
         this.requestRepository = requestRepository;

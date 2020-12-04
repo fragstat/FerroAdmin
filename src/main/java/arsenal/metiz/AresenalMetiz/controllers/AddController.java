@@ -1,6 +1,7 @@
 package arsenal.metiz.AresenalMetiz.controllers;
 
 import arsenal.metiz.AresenalMetiz.assets.VerifyView;
+import arsenal.metiz.AresenalMetiz.assets.WarehouseEditPosition;
 import arsenal.metiz.AresenalMetiz.models.WarehouseAddPosition;
 import arsenal.metiz.AresenalMetiz.service.addservice.AddService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,8 +14,12 @@ import java.util.Map;
 @RestController
 public class AddController {
 
+    final AddService service;
+
     @Autowired
-    AddService service;
+    public AddController(AddService service) {
+        this.service = service;
+    }
 
     @PostMapping("api/position/add")
     @ResponseBody
@@ -23,6 +28,16 @@ public class AddController {
                                          @RequestParam String comment, @RequestParam String plav,
                                          @RequestParam String part, @RequestParam String manufacturer) {
         return ResponseEntity.ok(service.addPosition(mark, diameter, packing, mass, comment, plav, part, manufacturer));
+    }
+
+    @PostMapping("api/edit/save")
+    public void edit(@RequestBody WarehouseEditPosition position) {
+        service.edit(position);
+    }
+
+    @GetMapping("api/weightsFix")
+    public void fixWeights() {
+        service.fixWeights();
     }
 
     @PostMapping("api/multipleAdd")

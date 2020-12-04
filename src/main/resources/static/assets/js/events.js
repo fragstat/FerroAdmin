@@ -4,6 +4,12 @@
     });
 }
 
+function plavSearch_help(tags) {
+    $("#plavSearchValue").autocomplete({
+        source: tags
+    });
+}
+
 function onInput() {
     var input = document.forms.searchForm.searchValue.value;
     if (input != '') {
@@ -17,6 +23,29 @@ function onInput() {
                 success: function (data, textStatus) {
                     console.log(data);
                     search_help(data);
+                }
+            })
+    }
+}
+
+function onPlavSearchInput() {
+    var input = document.forms.plavSearchForm.plavSearchValue.value;
+    obj = {
+        "plav": input
+    };
+    if (input != '') {
+        ssyl = `http://ferro-trade.ru/api/search/plavka/tags?plav=${input}`;
+        $.ajax(
+            {
+                type: 'POST',
+                url: ssyl,
+                dataType: 'json',
+                success: function (data, textStatus) {
+                    console.log(data);
+                    plavSearch_help(data);
+                },
+                error: function (data, textStatus) {
+                    console.log(data);
                 }
             })
     }
@@ -89,7 +118,7 @@ function table_for_history(data) {
    <tr>
       <th scope="col">Номер отгрузки</th>
       <th scope="col">Номер счёта</th>
-      <th scope="col">Агент</th>
+      <th scope="col">Контргент</th>
       <th scope="col">Дата</th>
       <th scope="col">Масса</th>
    </tr>
@@ -439,7 +468,71 @@ $('.addManyForm').delegate("#addMany", "click", function () {
         })
 })
 
-$('#controlBtns').delegate('#all', "click", function(){
+$('.updateForm').delegate("#upd", "click", function () {
+    id = document.forms.updForm.updId.value;
+    mark = document.forms.updForm.updMark.value;
+    diameter = document.forms.updForm.updDiameter.value;
+    packing = document.forms.updForm.updPacking.value;
+    plav = document.forms.updForm.updPlav.value;
+    part = document.forms.updForm.updPart.value;
+    mass = document.forms.updForm.updMass.value;
+    mass = parseFloat(mass).toFixed(2);
+    comment = document.forms.updForm.updComment.value;
+    manufacturer = document.forms.updForm.updManufacturer.value;
+    console.log(mark, diameter, packing, plav, part, mass, comment, manufacturer, id);
+    object = {
+        "mark": mark,
+        "diameter": diameter,
+        "packing": packing,
+        "comment": comment,
+        "part": part,
+        "plav": plav,
+        "manufacturer": manufacturer,
+        "mass": mass,
+        "id": id
+    }
+    $.ajax(
+        {
+            type: 'POST',
+            url: `http://ferro-trade.ru/api/edit/save`,
+            contentType: "application/json; charset=utf-8",
+            data: JSON.stringify(object),
+            success: function (data, textStatus) {
+                console.log(data);
+            },
+            error: function (data, textStatus) {
+                console.log(data);
+            }
+        })
+})
+
+$('.updateForm').delegate("#loadInfoById", "click", function () {
+    id = document.forms.updForm.updId.value;
+    console.log(id);
+    $.ajax(
+        {
+            type: 'GET',
+            url: `http://ferro-trade.ru/api/position/${id}`,
+            contentType: "application/json; charset=utf-8",
+            dataType: 'json',
+            success: function (data, textStatus) {
+                console.log(data);
+                document.forms.updForm.updMark.value = data.mark;
+                document.forms.updForm.updDiameter.value = data.diameter;
+                document.forms.updForm.updPacking.value = data.packing;
+                document.forms.updForm.updPlav.value = data.plav;
+                document.forms.updForm.updPart.value = data.part;
+                document.forms.updForm.updMass.value = data.mass;
+                document.forms.updForm.updComment.value = data.comment;
+                document.forms.updForm.updManufacturer.value = data.manufacturer;
+            },
+            error: function (data, textStatus) {
+                console.log(data);
+            }
+        })
+})
+
+$('#controlBtns').delegate('#all', "click", function () {
     $("#content").html(`
    <div class="col-9 column">
       <div class="sortSwitch row">
@@ -533,6 +626,22 @@ $('#controlBtns').delegate('#openSearch', "click", function () {
     bind_search();
 })
 
+$('#controlBtns').delegate('#openPlavSearch', "click", function () {
+    $('#content').html(
+        `<form name="plavSearchForm" class="col-12">
+         <div class="row">
+            <div class="col-9 ui-widget">
+               <input class="form-control col-10" name="plavSearchValue" id="plavSearchValue" oninput='onPlavSearchInput();'/>
+            </div>
+            <div class="col-3">
+               <button type="button" class="btn btn-outline-info btn-block mb-2 plavSearch" id="plavSearch">Найти по плавке</button>
+            </div>
+         </div>
+      </form>
+      <div class="searchContent col-12 row"></div>`);
+    bind_plavSearch();
+})
+
 $('#controlBtns').delegate('#openShipInput', "click", function () {
     $('#content').html(
         `<form name="shipForm" class="col-12 shipForm">
@@ -589,15 +698,18 @@ $('#controlBtns').delegate("#addMany", "click", function () {
     $('.addManyForm').css('display', 'inline');
 });
 
-$('#content').delegate("#switcher", "click", function(){
-    if (!$("#switcher")[0].checked){
+$('#controlBtns').delegate("#update", "click", function () {
+    $(".updateForm").css('display', 'inline');
+});
+
+$('#content').delegate("#switcher", "click", function () {
+    if (!$("#switcher")[0].checked) {
         $.ajax(
             {
                 type: 'GET',
                 url: 'http://5.200.47.32:80/api/table',
                 dataType: 'json',
-                success: function(data, textStatus)
-                {
+                success: function (data, textStatus) {
                     console.log(data);
                     products = table(data);
                     $('#cards').html(products);
@@ -629,6 +741,10 @@ $('.form').delegate('.close-block', 'click', function () {
 
 $('.addManyForm').delegate('.close-block-regMany', 'click', function () {
     $('.addManyForm').fadeOut();
+})
+
+$('.updateForm').delegate('.close-block-update', 'click', function () {
+    $('.updateForm').fadeOut();
 })
 
 $('#content').delegate('#search', "click", function () {
@@ -1026,6 +1142,8 @@ $(document).on("keypress", 'form', function (e) {
 
 function fillFilter(){
     var availableTags = ["Моток",
+        "К200",
+        "Д200",
         "К300",
         "Д300",
         "К415",
@@ -1151,11 +1269,44 @@ function bind_search() {
     })
 }
 
-function bind_ship(){
-    $('#shipValues').keyup(function(event){
+function bind_plavSearch() {
+    $('#plavSearchValue').keyup(function (event) {
+        elems = document.querySelectorAll('#plavSearch');
+        console.log('yep');
+        if (event.keyCode == 13 && elems.length != 0) {
+            $('#plavSearch').click();
+            $(this).val('');
+        }
+        return false;
+    })
+
+    $('#content').unbind('click').delegate('#plavSearch', "click", function () {
+        val = document.forms.plavSearchForm.plavSearchValue.value;
+        console.log(val);
+        ssyl = `http://ferro-trade.ru/api/search/plavka?plav=${val}`
+        $.ajax(
+            {
+                type: 'POST',
+                url: ssyl,
+                dataType: 'json',
+                success: function (data, textStatus) {
+                    console.log(data);
+                    plavTable = table(data);
+                    $("#content").html(plavTable);
+                },
+                error: function (data, textStatus) {
+                    console.log(data);
+                }
+            }
+        );
+    })
+}
+
+function bind_ship() {
+    $('#shipValues').keyup(function (event) {
         elems = document.querySelectorAll('#ship');
         console.log($("#shipValues").is(':focus'));
-        if (event.keyCode == 13 && elems.length != 0 && $("#shipValues").is(':focus')){
+        if (event.keyCode == 13 && elems.length != 0 && $("#shipValues").is(':focus')) {
             $(this).val($(this).val() + ', ');
             console.log($(this).val());
             $.ajax({

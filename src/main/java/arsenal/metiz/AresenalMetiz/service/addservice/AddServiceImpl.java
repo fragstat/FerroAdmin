@@ -2,6 +2,7 @@ package arsenal.metiz.AresenalMetiz.service.addservice;
 
 import arsenal.metiz.AresenalMetiz.assets.PositionStatus;
 import arsenal.metiz.AresenalMetiz.assets.VerifyView;
+import arsenal.metiz.AresenalMetiz.assets.WarehouseEditPosition;
 import arsenal.metiz.AresenalMetiz.controllers.APIController;
 import arsenal.metiz.AresenalMetiz.models.WarehouseAddPosition;
 import arsenal.metiz.AresenalMetiz.models.WarehousePackage;
@@ -9,6 +10,7 @@ import arsenal.metiz.AresenalMetiz.models.WarehousePosition;
 import arsenal.metiz.AresenalMetiz.repo.WarehouseDao;
 import arsenal.metiz.AresenalMetiz.repo.WarehousePackageRepo;
 import arsenal.metiz.AresenalMetiz.repo.WarehouseRepo;
+import org.apache.commons.math3.util.Precision;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -117,5 +119,35 @@ public class AddServiceImpl implements AddService{
             }
         }
         pack.setMass(mass);
+    }
+
+    @Override
+    public void edit(WarehouseEditPosition edited) {
+        WarehousePosition position = warehouse.findById(edited.getId()).get();
+        position.setMark(edited.getMark());
+        position.setDiameter(edited.getDiameter());
+        position.setPacking(edited.getPacking());
+        position.setPart(edited.getPart());
+        position.setPlav(edited.getPlav());
+        position.setManufacturer(edited.getManufacturer());
+        position.setMass(edited.getMass());
+        position.setComment(edited.getComment());
+        warehouse.save(position);
+//        updateWeight(position.getPack().getId());
+    }
+
+    @Override
+    public void updateWeight(Long id) {
+        WarehousePackage packages = warehousePackage.findById(id).get();
+        List<WarehousePosition> positions = packages.getPositionsList();
+        double mass = positions.stream().mapToDouble(WarehousePosition::getMass).sum();
+        packages.setMass(Precision.round(mass, 2));
+    }
+
+    @Override
+    public void fixWeights() {
+        Iterable<WarehousePackage> packages = warehousePackage.findAll();
+        packages.forEach(p -> updateWeight(p.getId()));
+        warehousePackage.saveAll(packages);
     }
 }

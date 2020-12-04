@@ -30,6 +30,7 @@ public class APIController {
 
     static Iterable<WarehousePosition> allPositions;
 
+
     public APIController(WarehouseRepo warehouse, DepartureActionRepo departure, WarehousePackageRepo warehousePackage) {
         APIController.warehouse = warehouse;
         APIController.departure = departure;
@@ -70,6 +71,7 @@ public class APIController {
         ArrayList<WarehousePosition> list = new ArrayList<>();
         allPositions.forEach(list::add);
         //list.removeIf(p -> p.getStatus().equals(PositionStatus.Departured));
+        fix();
         return list;
     }
 
@@ -237,7 +239,10 @@ public class APIController {
                 "Св-10ХГ2СМА," +
                 "Св-08ХГСМФА-О, Св-08ХГСМФА-П,Св-04Х2МА,Св-13Х2МФТ,Св-08Х3Г2СМ,Св-08ХМНФБА,Св-08ХН2М,Св-10ХН2ГМТ," +
                 "Св-08ХН2ГМТА, " +
-                "Св-08ХН2ГМЮ, Св-08ХН2Г2СМЮ, Св-06Н3, Св-10Х5М, Св-12X11НМФ, Св-10Х11НВМФ, Св-12Х13, Св-20Х13, Св-06Х14, Св-08Х14ГНТ, Св-10Х17Т, Св-13Х25Т, Св-01Х19Н9, Св-08Х16Н8М2, Св-08Х18Н8Г2Б, Св-07Х18Н9ТЮ, Св-08, Св-08А, Св-08АА, Св-08ГА, Св-10ГА, Св-10Г2, Св-06Х19Н9Т, Св-04Х19Н9С2, Св-04Х19Н9, Св-05Х19Н9Ф3С2, Св-07Х19Н10Б, Св-08Х19Н10Г2Б, Св-06Х19Н10М3Т, Св-08Х19Н10М3Б, СВ-04Х19Н11М3, Св-05Х20Н9ФБС, Св-06Х20Н11М3ТБ, Св-10Х20Н15, Св-07Х25Н12Г2Т, Св-06Х25Н12ТЮ, Св-07Х25Н13, Св-08Х25Н13БТЮ, Св-13Х25Н18, Св-08Х20Н9Г7Т, Св-08Х21Н10Г6, Св-30Х25Н16Г7, Св-10Х16Н25АМ6, Св-09Х16Н25М6АФ, Св-01Х23Н28М3Д3Т, Св-30Х15Н35В3Б3Т, Св-08Н50, Св-06Х15Н60М15").replaceAll(" ", "").split(",");
+                "Св-08ХН2ГМЮ, Св-08ХН2Г2СМЮ, Св-06Н3, Св-10Х5М, Св-12X11НМФ, Св-10Х11НВМФ, Св-12Х13, Св-20Х13, " +
+                "Св-06Х14, Св-08Х14ГНТ, Св-10Х17Т, Св-13Х25Т, Св-01Х19Н9, Св-08Х16Н8М2, Св-08Х18Н8Г2Б, Св-07Х18Н9ТЮ, " +
+                "Св-08, Св-08А, Св-08АА, Св-08ГА, Св-10ГА, Св-10Г2, Св-06Х19Н9Т, Св-04Х19Н9С2, Св-04Х19Н9, " +
+                "Св-05Х19Н9Ф3С2, Св-07Х19Н10Б, Св-08Х19Н10Г2Б, Св-06Х19Н10М3Т, Св-08Х19Н10М3Б, СВ-04Х19Н11М3, Св-04Х19Н11М3, Св-05Х20Н9ФБС, Св-06Х20Н11М3ТБ, Св-10Х20Н15, Св-07Х25Н12Г2Т, Св-06Х25Н12ТЮ, Св-07Х25Н13, Св-08Х25Н13БТЮ, Св-13Х25Н18, Св-08Х20Н9Г7Т, Св-08Х21Н10Г6, Св-30Х25Н16Г7, Св-10Х16Н25АМ6, Св-09Х16Н25М6АФ, Св-01Х23Н28М3Д3Т, Св-30Х15Н35В3Б3Т, Св-08Н50, Св-06Х15Н60М15").replaceAll(" ", "").split(",");
         List<String> G2246A = Arrays.asList(G2246);
         String[] G18143 = "12Х18Н10Т, 12Х18Н9, 08Х18Н10, 12Х13, 20Х13, 10Х17Н13М2Т, 12Х13-Т, 12Х13-Т-1".replaceAll(" ", "").split(",");
         List<String> G18143A = Arrays.asList(G18143);
@@ -323,6 +328,31 @@ public class APIController {
     @GetMapping("api/table")
     public Set<TableView> tableView() {
         return toTableViews((List<WarehousePosition>) allPositions);
+    }
+
+    @PostMapping("api/search/plavka")
+    public Set<TableView> plavkaTable(@RequestParam String plav) {
+
+        return toTableViews(warehouse.findAllByPlav(plav));
+    }
+
+    @PostMapping("api/search/plavka/tags")
+    public Set<String> plavkaAutocomplete(@RequestParam String plav) {
+        return StreamSupport.stream(allPositions.spliterator(), false)
+                .filter(p -> p.getPlav().contains(plav))
+                .map(WarehousePosition::getPlav)
+                .collect(Collectors.toSet());
+    }
+
+    private void fix() {
+        Vector<WarehousePackage> packages = new Vector<>();
+        warehousePackage.findAll().forEach(packages::add);
+        packages.forEach(p -> {
+            if (p.getMass() <= 0) {
+                p.setStatus(PositionStatus.Departured);
+                warehousePackage.save(p);
+            }
+        });
     }
 
     private Set<TableView> toTableViews(List<WarehousePosition> positions) {
