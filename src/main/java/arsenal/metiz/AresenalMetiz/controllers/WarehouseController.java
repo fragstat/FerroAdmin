@@ -31,6 +31,11 @@ public class WarehouseController {
         return "registration_example";
     }
 
+    @GetMapping("/manufacture")
+    public String getManufacture() {
+        return "manufacture";
+    }
+
     @GetMapping("/product")
     public String getWarehousePosition() {
         return "product";
@@ -39,6 +44,11 @@ public class WarehouseController {
     @GetMapping("/package")
     public String getWarehousePackage() {
         return "package";
+    }
+
+    @GetMapping("/shipment_history")
+    public String getWarehouseShipmentHistory() {
+        return "shipment_history";
     }
 
     @GetMapping("/api/union")

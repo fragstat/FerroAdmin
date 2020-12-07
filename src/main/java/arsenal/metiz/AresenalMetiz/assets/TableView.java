@@ -1,5 +1,6 @@
 package arsenal.metiz.AresenalMetiz.assets;
 
+import arsenal.metiz.AresenalMetiz.models.ManufacturePosition;
 import arsenal.metiz.AresenalMetiz.models.WarehousePosition;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -14,6 +15,13 @@ public class TableView implements Comparable<TableView> {
     private double mass;
 
     public TableView(WarehousePosition position) {
+        this.mark = position.getMark();
+        this.diameter = Float.parseFloat(position.getDiameter().replaceAll(",", "."));
+        this.packing = position.getPacking();
+        this.mass = position.getMass();
+    }
+
+    public TableView(ManufacturePosition position) {
         this.mark = position.getMark();
         this.diameter = Float.parseFloat(position.getDiameter().replaceAll(",", "."));
         this.packing = position.getPacking();

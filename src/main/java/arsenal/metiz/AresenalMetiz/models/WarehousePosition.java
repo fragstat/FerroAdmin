@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 import org.springframework.lang.NonNull;
 
 import javax.persistence.*;
@@ -13,6 +14,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+@ToString
 @Entity
 @AllArgsConstructor
 @Getter
@@ -37,7 +39,7 @@ public class WarehousePosition {
 
     private PositionStatus status;
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JsonBackReference
     private WarehousePackage pack;
 
@@ -84,4 +86,5 @@ public class WarehousePosition {
         info.add(manufacturer);
         return info;
     }
+
 }

@@ -11,14 +11,15 @@ import java.util.List;
 @NoArgsConstructor
 public class Transfer {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
     String destination;
     String carPlate;
     String billNumber;
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     List<ManufacturePosition> positions;
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
 
     public Transfer(String destination, String carPlate, String billNumber, List<ManufacturePosition> positions) {
         this.destination = destination;

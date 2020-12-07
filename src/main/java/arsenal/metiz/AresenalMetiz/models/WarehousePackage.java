@@ -84,7 +84,7 @@ public class WarehousePackage {
         positionsList.forEach(this::remove);
     }
 
-    private void countWeight() {
+    public void countWeight() {
         this.mass = positionsList.stream().mapToDouble(WarehousePosition::getMass).sum();
     }
 

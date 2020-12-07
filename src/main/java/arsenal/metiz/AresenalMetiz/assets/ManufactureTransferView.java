@@ -1,13 +1,13 @@
 package arsenal.metiz.AresenalMetiz.assets;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 
 import java.util.List;
 
+@AllArgsConstructor
 @Data
 public class ManufactureTransferView {
-
-    public Long transferId;
 
     public String destination;
 

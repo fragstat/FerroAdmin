@@ -6,10 +6,10 @@ import arsenal.metiz.AresenalMetiz.assets.WarehouseSearchView;
 import arsenal.metiz.AresenalMetiz.models.SortRequest;
 import arsenal.metiz.AresenalMetiz.models.WarehousePackage;
 import arsenal.metiz.AresenalMetiz.models.WarehousePosition;
-import arsenal.metiz.AresenalMetiz.repo.DepartureActionRepo;
-import arsenal.metiz.AresenalMetiz.repo.WarehousePackageRepo;
-import arsenal.metiz.AresenalMetiz.repo.WarehouseRepo;
+import arsenal.metiz.AresenalMetiz.repo.*;
 import org.apache.commons.math3.util.Precision;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -30,13 +30,20 @@ public class APIController {
 
     static Iterable<WarehousePosition> allPositions;
 
+    static ManufacturePositionRepo manufacturePositionRepo;
 
-    public APIController(WarehouseRepo warehouse, DepartureActionRepo departure, WarehousePackageRepo warehousePackage) {
+    final
+    ManufacturePackageRepo manufacturePackageRepo;
+
+    @Autowired
+    public APIController(WarehouseRepo warehouse, DepartureActionRepo departure,
+                         WarehousePackageRepo warehousePackage, ManufacturePositionRepo manufacturePositionRepo, ManufacturePackageRepo manufacturePackageRepo) {
         APIController.warehouse = warehouse;
         APIController.departure = departure;
         APIController.warehousePackage = warehousePackage;
+        APIController.manufacturePositionRepo = manufacturePositionRepo;
+        this.manufacturePackageRepo = manufacturePackageRepo;
     }
-
 
     public static void updateTags() {
         allPositions = warehouse.findAll();
@@ -239,7 +246,8 @@ public class APIController {
                 "Св-10ХГ2СМА," +
                 "Св-08ХГСМФА-О, Св-08ХГСМФА-П,Св-04Х2МА,Св-13Х2МФТ,Св-08Х3Г2СМ,Св-08ХМНФБА,Св-08ХН2М,Св-10ХН2ГМТ," +
                 "Св-08ХН2ГМТА, " +
-                "Св-08ХН2ГМЮ, Св-08ХН2Г2СМЮ, Св-06Н3, Св-10Х5М, Св-12X11НМФ, Св-10Х11НВМФ, Св-12Х13, Св-20Х13, " +
+                "Св-08ХН2ГМЮ, Св-08ХН2Г2СМЮ, Св-06Н3, Св-10Х5М, Св-12X11НМФ, Св-10Х11НВМФ, Св-12Х13, Св-12Х13-Т," +
+                "Св-12Х13-Т-1,Св-20Х13, " +
                 "Св-06Х14, Св-08Х14ГНТ, Св-10Х17Т, Св-13Х25Т, Св-01Х19Н9, Св-08Х16Н8М2, Св-08Х18Н8Г2Б, Св-07Х18Н9ТЮ, " +
                 "Св-08, Св-08А, Св-08АА, Св-08ГА, Св-10ГА, Св-10Г2, Св-06Х19Н9Т, Св-04Х19Н9С2, Св-04Х19Н9, " +
                 "Св-05Х19Н9Ф3С2, Св-07Х19Н10Б, Св-08Х19Н10Г2Б, Св-06Х19Н10М3Т, Св-08Х19Н10М3Б, СВ-04Х19Н11М3, Св-04Х19Н11М3, Св-05Х20Н9ФБС, Св-06Х20Н11М3ТБ, Св-10Х20Н15, Св-07Х25Н12Г2Т, Св-06Х25Н12ТЮ, Св-07Х25Н13, Св-08Х25Н13БТЮ, Св-13Х25Н18, Св-08Х20Н9Г7Т, Св-08Х21Н10Г6, Св-30Х25Н16Г7, Св-10Х16Н25АМ6, Св-09Х16Н25М6АФ, Св-01Х23Н28М3Д3Т, Св-30Х15Н35В3Б3Т, Св-08Н50, Св-06Х15Н60М15").replaceAll(" ", "").split(",");
@@ -373,6 +381,29 @@ public class APIController {
         }
         tableViews.forEach(p -> p.setMass(round((float) p.getMass(), 2)));
         return tableViews;
+    }
+
+    @GetMapping("api/getById/{id}")
+    public ResponseEntity<?> getByID(@PathVariable Long id) {
+        if (warehouse.existsById(id)) {
+            return ResponseEntity.of(warehouse.findById(id));
+        } else if (warehousePackage.existsById(id)) {
+            return ResponseEntity.of(warehousePackage.findById(id));
+        } else {
+            return ResponseEntity.of(Optional.<Long> empty());
+        }
+    }
+
+
+    @GetMapping("api/manufacture/getById/{id}")
+    public ResponseEntity<?> getByIDFromManufacture(@PathVariable Long id) {
+        if (manufacturePositionRepo.existsById(id)) {
+            return ResponseEntity.of(manufacturePositionRepo.findById(id));
+        } else if (manufacturePackageRepo.existsById(id)) {
+            return ResponseEntity.of(manufacturePackageRepo.findById(id));
+        } else {
+            return ResponseEntity.of(Optional.<Long> empty());
+        }
     }
 
 }

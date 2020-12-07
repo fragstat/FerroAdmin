@@ -130,6 +130,14 @@ public class MainController {
         return "result";
     }
 
+    public static BitMatrix generateQRBarcodeImage(String barcodeText, int size) throws Exception {
+        QRCodeWriter code128Writer = new QRCodeWriter();
+        Hashtable<EncodeHintType, ErrorCorrectionLevel> hintMap = new Hashtable<EncodeHintType, ErrorCorrectionLevel>();
+        hintMap.put(EncodeHintType.ERROR_CORRECTION, ErrorCorrectionLevel.H);
+        return code128Writer.encode(barcodeText, BarcodeFormat.QR_CODE, 200,
+                200, hintMap);
+    }
+
     @SneakyThrows
     @GetMapping(value = "/admin/qr",
             produces = MediaType.IMAGE_PNG_VALUE
@@ -146,7 +154,7 @@ public class MainController {
                 qr.append(al[(int) (Math.random() * al.length)]);
             }
 
-            BufferedImage imageBuff = MatrixToImageWriter.toBufferedImage(generateQRBarcodeImage(qr.toString()));
+            BufferedImage imageBuff = MatrixToImageWriter.toBufferedImage(generateQRBarcodeImage(qr.toString(), 200));
             imageBuff = BarcodeController.process(imageBuff, qr.toString());
             baos = new ByteArrayOutputStream();
             ImageIO.write(imageBuff, "png", baos);
@@ -156,14 +164,6 @@ public class MainController {
             fos.flush();
         }
         return baos.toByteArray();
-    }
-
-    public static BitMatrix generateQRBarcodeImage(String barcodeText) throws Exception {
-        QRCodeWriter code128Writer = new QRCodeWriter();
-        Hashtable<EncodeHintType, ErrorCorrectionLevel> hintMap = new Hashtable<EncodeHintType, ErrorCorrectionLevel>();
-        hintMap.put(EncodeHintType.ERROR_CORRECTION, ErrorCorrectionLevel.H);
-        return code128Writer.encode(barcodeText, BarcodeFormat.QR_CODE, 200,
-                200, hintMap);
     }
 
 }

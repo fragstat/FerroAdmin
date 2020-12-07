@@ -1,9 +1,10 @@
 package arsenal.metiz.AresenalMetiz.service.manufactureservice;
 
-import arsenal.metiz.AresenalMetiz.assets.ManufactureTransferView;
-import arsenal.metiz.AresenalMetiz.assets.PositionStatus;
+import arsenal.metiz.AresenalMetiz.assets.*;
+import arsenal.metiz.AresenalMetiz.controllers.APIController;
 import arsenal.metiz.AresenalMetiz.models.*;
 import arsenal.metiz.AresenalMetiz.repo.*;
+import org.apache.commons.math3.util.Precision;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -23,44 +24,101 @@ public class ManufactureServiceImpl implements ManufactureService {
 
     final ManufacturePackageRepo manufacturePackageRepo;
 
+    final WarehouseDao warehouseDao;
+
     @Autowired
     public ManufactureServiceImpl(TransferRepo transferRepo, WarehouseRepo warehouseRepo,
                                   WarehousePackageRepo warehousePackageRepo, ManufacturePositionRepo manufacturePositionRepo,
-                                  ManufacturePackageRepo manufacturePackageRepo) {
+                                  ManufacturePackageRepo manufacturePackageRepo, WarehouseDao warehouseDao) {
         this.transferRepo = transferRepo;
         this.warehouseRepo = warehouseRepo;
         this.warehousePackageRepo = warehousePackageRepo;
         this.manufacturePositionRepo = manufacturePositionRepo;
         this.manufacturePackageRepo = manufacturePackageRepo;
+        this.warehouseDao = warehouseDao;
     }
 
     @Override
-    public Map<String, List<Long>> doMultipleAdd(List<WarehouseAddPosition> list) {
-        return null;
+    public Map<String, List<Long>> doMultipleAdd(List<WarehouseAddPosition> in) {
+        List<Long> ids = new ArrayList<>();
+        List<Long> packs = new ArrayList<>();
+        List<ManufacturePosition> list = new ArrayList<>();
+        Map<String, List<Long>> id = new HashMap<>();
+        id.put("package", null);
+        for (WarehouseAddPosition p : in) {
+            ManufacturePosition position = mapToManufacturePositionWhileCreating(p);
+            manufacturePositionRepo.save(position);
+            list.add(position);
+            ids.add(position.getId());
+        }
+        if (verify(in)) {
+            try {
+                ManufacturePackage packages = new ManufacturePackage();
+                packages.attachAll(list);
+                manufacturePackageRepo.save(packages);
+                packs.add(packages.getId());
+                id.put("package", packs);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        id.put("id", ids);
+        return id;
+
     }
 
     @Override
     public void transfer(ManufactureTransferView transferView) {
-        writeTransfer(transferView);
+        //writeTransfer(transferView);
         transferPositions(transferView);
+    }
+
+    @Override
+    public ManufacturePosition getById(Long id) {
+        return manufacturePositionRepo.findById(id).orElse(null);
+    }
+
+    @Override
+    public DeparturePreProcessResponseView departurePreProcess(DeparturePreProcessRequestView view) {
+        List<Long> ids = Arrays.stream(view.request.split(","))
+                .map(String::trim)
+                .map(APIController::decodeEAN)
+                .collect(Collectors.toList());
+        List<ManufacturePosition> positions = collectDataFromDB(ids);
+        return new DeparturePreProcessResponseView(toTableViews(positions), ids);
+    }
+
+    private List<ManufacturePosition> collectDataFromDB(List<Long> ids) {
+        List<ManufacturePosition> positions = new ArrayList<>();
+        for (Long id : ids) {
+            if (manufacturePositionRepo.existsById(id)) {
+                positions.add(manufacturePositionRepo.findById(id).get());
+            } else if (manufacturePackageRepo.existsById(id)) {
+                positions.addAll(manufacturePackageRepo.findById(id).get().getPositionsList());
+            }
+        }
+        return positions;
     }
 
     private void transferPositions(ManufactureTransferView transferView) {
         List<Long> positionsId = transferView.getPositions();
         List<ManufacturePosition> positions = new ArrayList<>();
         positionsId.forEach(p -> positions.add(manufacturePositionRepo.findById(p).get()));
-        map(positions);
+        mapForTransfer(positions);
     }
 
     private void writeTransfer(ManufactureTransferView transferView) {
         List<Long> positionsId = transferView.getPositions();
         List<ManufacturePosition> positions = new ArrayList<>();
         positionsId.forEach(p -> positions.add(manufacturePositionRepo.findById(p).get()));
+        for (ManufacturePosition p : positions) {
+
+        }
         Transfer transfer = new Transfer(transferView.destination, transferView.carPlate, transferView.billNumber, positions);
         transferRepo.save(transfer);
     }
 
-    private void map(List<ManufacturePosition> positions) {
+    private void mapForTransfer(List<ManufacturePosition> positions) {
         Set<ManufacturePackage> packages = new HashSet<>();
         positions.forEach(p -> packages.add(p.getPack()));
         List<ManufacturePackage> newPacks = new ArrayList<>();
@@ -90,18 +148,83 @@ public class ManufactureServiceImpl implements ManufactureService {
             List<ManufacturePosition> positions = manufacturePackage.getPositionsList();
             List<WarehousePosition> warehousePositions = new ArrayList<>();
             for (ManufacturePosition position : positions) {
-                WarehousePosition warehousePosition = new WarehousePosition(position.getId(),
-                        position.getCreatedFrom(),
-                        position.getMark(), position.getDiameter(), position.getPacking(), position.getDate(),
-                        position.getComment(), position.getPart(), position.getPlav(), position.getManufacturer(),
-                        position.getMass(), PositionStatus.Arriving, null);
+                System.out.println(position.getId());
+                WarehousePosition warehousePosition = new WarehousePosition();
+                warehousePosition.setId(position.getId());
+                warehousePosition.setMark(position.getMark());
+                warehousePosition.setDiameter(position.getDiameter());
+                warehousePosition.setPacking(position.getPacking());
+                warehousePosition.setDate(position.getDate());
+                warehousePosition.setComment(position.getComment());
+                warehousePosition.setPart(position.getPart());
+                warehousePosition.setPlav(position.getPlav());
+                warehousePosition.setManufacturer(position.getManufacturer());
+                warehousePosition.setMass(position.getMass());
+                warehousePosition.setStatus(PositionStatus.Arriving);
+
                 warehousePositions.add(warehousePosition);
+                warehouseDao.saveWithId(warehousePosition);
+                System.out.println(warehousePosition.getId());
+                System.out.println(warehouseRepo.existsById(warehousePosition.getId()));
             }
             WarehousePackage warehousePackage = new WarehousePackage();
-            warehousePackage.attachAll(warehousePositions);
             warehousePackage.setId(manufacturePackage.getId());
+            warehousePackageRepo.save(warehousePackage);
+            warehousePackage.attachAll(warehousePositions);
             warehousePackages.add(warehousePackage);
+            warehousePackage.getPositionsList().forEach(p -> System.out.println(p.toString()));
         }
-        warehousePackageRepo.saveAll(warehousePackages);
+
+    }
+
+    public boolean verify(List<WarehouseAddPosition> list) {
+        String mark = null, diameter = null, plav = null, part = null, packing = null, manufacturer = null;
+        if (list.size() <= 1) {
+            return false;
+        }
+        for (WarehouseAddPosition position : list) {
+            if (mark == null) {
+                mark = position.getMark();
+                diameter = position.getDiameter();
+                plav = position.getPlav();
+                part = position.getPart();
+                packing = position.getPacking();
+                manufacturer = position.getManufacturer();
+            } else {
+                if (!(mark.equals(position.getMark()) && diameter.equals(position.getDiameter())
+                        && plav.equals(position.getPlav()) && part.equals(position.getPart())
+                        && packing.equals(position.getPacking()) && manufacturer.equals(position.getManufacturer()))) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    private ManufacturePosition mapToManufacturePositionWhileCreating(WarehouseAddPosition position) {
+        return new ManufacturePosition(position.getMark(), position.getDiameter(), position.getPacking(),
+                position.getComment(), position.getPart(), position.getPlav(), position.getManufacturer(),
+                position.getMass(), PositionStatus.In_stock);
+    }
+
+    private Set<TableView> toTableViews(List<ManufacturePosition> positions) {
+        Set<TableView> tableViews = new TreeSet<>();
+        for (ManufacturePosition p : positions) {
+            if (p.getStatus() == PositionStatus.In_stock) {
+                TableView tableView = new TableView(p);
+                if (tableViews.contains(tableView)) {
+                    for (TableView tableViewFromIterator : tableViews) {
+                        if (tableViewFromIterator.compareTo(tableView) == 0) {
+                            tableViewFromIterator
+                                    .setMass(Precision.round((tableView.getMass() + tableViewFromIterator.getMass()), 2));
+                        }
+                    }
+                } else {
+                    tableViews.add(tableView);
+                }
+            }
+        }
+        tableViews.forEach(p -> p.setMass(Precision.round(p.getMass(), 2)));
+        return tableViews;
     }
 }

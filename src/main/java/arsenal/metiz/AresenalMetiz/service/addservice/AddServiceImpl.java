@@ -14,7 +14,11 @@ import org.apache.commons.math3.util.Precision;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
 
 @Service
 public class AddServiceImpl implements AddService{
@@ -83,12 +87,12 @@ public class AddServiceImpl implements AddService{
     @Override
     public void update(Long id) {
         WarehousePackage pack = warehousePackage.findById(id).get();
-        Float mass = 0F;
+        AtomicReference<Float> mass = new AtomicReference<>(0F);
         System.out.println(pack.getId());
         List<WarehousePosition> positionsList = pack.getPositionsList();
-        Vector<WarehousePosition> vector = new Vector<>(positionsList);
-        for (WarehousePosition p : vector) {
-            mass += p.getMass();
+        ArrayList<WarehousePosition> positions = new ArrayList<>(positionsList);
+        positions.forEach(p -> {
+            mass.updateAndGet(v -> v + p.getMass());
             boolean save = false;
             if (!p.getMark().equals(pack.getMark())) {
                 p.setMark(pack.getMark());
@@ -117,23 +121,40 @@ public class AddServiceImpl implements AddService{
             if (save) {
                 warehouse.save(p);
             }
-        }
-        pack.setMass(mass);
+        });
+        pack.setMass(mass.get());
     }
 
     @Override
     public void edit(WarehouseEditPosition edited) {
-        WarehousePosition position = warehouse.findById(edited.getId()).get();
-        position.setMark(edited.getMark());
-        position.setDiameter(edited.getDiameter());
-        position.setPacking(edited.getPacking());
-        position.setPart(edited.getPart());
-        position.setPlav(edited.getPlav());
-        position.setManufacturer(edited.getManufacturer());
-        position.setMass(edited.getMass());
-        position.setComment(edited.getComment());
-        warehouse.save(position);
-//        updateWeight(position.getPack().getId());
+        if (warehouse.findById(edited.getId()).isPresent()) {
+            WarehousePosition position = warehouse.findById(edited.getId()).get();
+            position.setMark(edited.getMark());
+            position.setDiameter(edited.getDiameter());
+            position.setPacking(edited.getPacking());
+            position.setPart(edited.getPart());
+            position.setPlav(edited.getPlav());
+            position.setManufacturer(edited.getManufacturer());
+            position.setMass(edited.getMass());
+            position.setComment(edited.getComment());
+            warehouse.save(position);
+            WarehousePackage warehousePack = position.getPack();
+            warehousePack.countWeight();
+            warehousePackage.save(warehousePack);
+        } else if (warehousePackage.findById(edited.getId()).isPresent()) {
+            WarehousePackage pack = warehousePackage.findById(edited.getId()).get();
+            pack.setMark(edited.getMark());
+            pack.setDiameter(edited.getDiameter());
+            pack.setPacking(edited.getPacking());
+            pack.setPart(edited.getPart());
+            pack.setPlav(edited.getPlav());
+            pack.setManufacturer(edited.getManufacturer());
+            pack.setMass(edited.getMass());
+            pack.setComment(edited.getComment());
+            pack.countWeight();
+            warehousePackage.save(pack);
+            update(pack.getId());
+        }
     }
 
     @Override

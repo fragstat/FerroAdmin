@@ -8,6 +8,8 @@ import lombok.NoArgsConstructor;
 import org.springframework.lang.NonNull;
 
 import javax.persistence.*;
+import java.text.DateFormat;
+import java.util.Date;
 
 @Entity
 @AllArgsConstructor
@@ -33,7 +35,23 @@ public class ManufacturePosition {
 
     private PositionStatus status;
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JsonBackReference
     private ManufacturePackage pack;
+
+    public ManufacturePosition(@NonNull String mark, @NonNull String diameter, @NonNull String packing, String comment,
+                               @NonNull String part, @NonNull String plav, @NonNull String manufacturer, Float mass,
+                               PositionStatus status) {
+        this.mark = mark;
+        this.diameter = diameter;
+        this.packing = packing;
+        this.date = DateFormat.getInstance().format(new Date()).trim();
+        this.comment = comment;
+        this.part = part;
+        this.plav = plav;
+        this.mass = mass;
+        this.createdFrom = -1;
+        this.manufacturer = manufacturer.trim().toUpperCase();
+        this.status = status;
+    }
 }

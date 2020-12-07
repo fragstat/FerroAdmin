@@ -10,4 +10,5 @@ public interface WarehouseRepo extends CrudRepository<WarehousePosition, Long> {
     List<WarehousePosition> findAllByPlav(String plav);
 
     List<WarehousePosition> findByPlavContains(String plav);
+
 }

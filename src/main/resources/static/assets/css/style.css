@@ -186,6 +186,32 @@ a:hover {
     padding: 10px;
 }
 
+.error2 {
+    z-index: 11;
+    background-color: rgba(200, 0, 0, 10);
+    border: 1px solid black;
+    border-radius: 5px;
+    width: 25%;
+    position: absolute;
+    margin-top: 10px;
+    margin-left: 65%;
+    display: none;
+    padding: 10px;
+}
+
+.successfulShip {
+    z-index: 11;
+    background-color: rgba(200, 0, 0, 10);
+    border: 1px solid black;
+    border-radius: 5px;
+    width: 25%;
+    position: absolute;
+    margin-top: 10px;
+    margin-left: 65%;
+    display: none;
+    padding: 10px;
+}
+
 .print {
     z-index: 12;
     background-color: white;

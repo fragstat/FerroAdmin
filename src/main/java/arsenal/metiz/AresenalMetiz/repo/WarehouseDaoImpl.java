@@ -1,8 +1,10 @@
 package arsenal.metiz.AresenalMetiz.repo;
 
+import arsenal.metiz.AresenalMetiz.models.ManufacturePosition;
 import arsenal.metiz.AresenalMetiz.models.WarehousePosition;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
@@ -26,11 +28,33 @@ public class WarehouseDaoImpl implements WarehouseDao {
 
     @Override
     public boolean exists(String mark, String diameter, String part, String plav) {
+        return (existInWarehouse(mark, diameter, part, plav) || existsInManufacture(mark, diameter, part, plav));
+    }
+
+    @Override
+    @Transactional
+    public void saveWithId(WarehousePosition position) {
+        em.persist(em.merge(position));
+    }
+
+    public boolean existInWarehouse(String mark, String diameter, String part, String plav) {
         String queryString = "SELECT dt FROM WarehousePosition dt WHERE dt.part = :part";
         TypedQuery<WarehousePosition> query = em.createQuery(queryString, WarehousePosition.class);
         query.setParameter("part", part);
         try {
             WarehousePosition wp = query.getResultList().get(0);
+            return wp.getMark().equalsIgnoreCase(mark) && wp.getDiameter().equals(diameter) && wp.getPlav().equals(plav);
+        } catch (NoResultException | IndexOutOfBoundsException e) {
+            return true;
+        }
+    }
+
+    public boolean existsInManufacture(String mark, String diameter, String part, String plav) {
+        String queryString = "SELECT dt FROM ManufacturePosition dt WHERE dt.part = :part";
+        TypedQuery<ManufacturePosition> query = em.createQuery(queryString, ManufacturePosition.class);
+        query.setParameter("part", part);
+        try {
+            ManufacturePosition wp = query.getResultList().get(0);
             return wp.getMark().equalsIgnoreCase(mark) && wp.getDiameter().equals(diameter) && wp.getPlav().equals(plav);
         } catch (NoResultException | IndexOutOfBoundsException e) {
             return true;
