@@ -7,6 +7,7 @@ import arsenal.metiz.AresenalMetiz.models.ManufacturePosition;
 import arsenal.metiz.AresenalMetiz.models.WarehouseAddPosition;
 import arsenal.metiz.AresenalMetiz.service.manufactureservice.ManufactureService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -28,8 +29,13 @@ public class ManufactureController {
     }
 
     @PostMapping("api/manufacture/transfer")
-    public void confirmTransfer(@RequestBody ManufactureTransferView view) {
-        manufactureService.transfer(view);
+    public ResponseEntity<Long> confirmTransfer(@RequestBody ManufactureTransferView view) {
+        Long result = manufactureService.transfer(view);
+        if (result == null) {
+            return ResponseEntity.status(400).build();
+        } else {
+            return ResponseEntity.status(200).body(result);
+        }
     }
 
     @GetMapping("api/manufacture/position/{id}")

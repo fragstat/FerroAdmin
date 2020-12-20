@@ -1,5 +1,6 @@
 package arsenal.metiz.AresenalMetiz.controllers;
 
+import arsenal.metiz.AresenalMetiz.assets.GetToStockView;
 import arsenal.metiz.AresenalMetiz.assets.PositionStatus;
 import arsenal.metiz.AresenalMetiz.assets.TableView;
 import arsenal.metiz.AresenalMetiz.assets.WarehouseSearchView;
@@ -28,25 +29,32 @@ public class APIController {
 
     static WarehousePackageRepo warehousePackage;
 
-    static Iterable<WarehousePosition> allPositions;
+    static List<WarehousePosition> allPositions = new ArrayList<>();
 
     static ManufacturePositionRepo manufacturePositionRepo;
+
+    final WarehouseDao dao;
 
     final
     ManufacturePackageRepo manufacturePackageRepo;
 
     @Autowired
     public APIController(WarehouseRepo warehouse, DepartureActionRepo departure,
-                         WarehousePackageRepo warehousePackage, ManufacturePositionRepo manufacturePositionRepo, ManufacturePackageRepo manufacturePackageRepo) {
+                         WarehousePackageRepo warehousePackage, ManufacturePositionRepo manufacturePositionRepo, ManufacturePackageRepo manufacturePackageRepo, WarehouseDao dao) {
         APIController.warehouse = warehouse;
         APIController.departure = departure;
         APIController.warehousePackage = warehousePackage;
         APIController.manufacturePositionRepo = manufacturePositionRepo;
         this.manufacturePackageRepo = manufacturePackageRepo;
+        this.dao = dao;
     }
 
     public static void updateTags() {
-        allPositions = warehouse.findAll();
+        Iterable<WarehousePosition> positions = warehouse.findAll();
+        allPositions.clear();
+        StreamSupport.stream(positions.spliterator(), false)
+                .filter(p -> p.getStatus() == PositionStatus.In_stock)
+                .forEach(allPositions::add);
     }
 
     public static long decodeEAN(String ean) {
@@ -75,17 +83,14 @@ public class APIController {
     @GetMapping("api/positions")
     public List<WarehousePosition> getPositions() {
         updateTags();
-        ArrayList<WarehousePosition> list = new ArrayList<>();
-        allPositions.forEach(list::add);
-        //list.removeIf(p -> p.getStatus().equals(PositionStatus.Departured));
-        fix();
-        return list;
+        ArrayList<WarehousePosition> list = new ArrayList<>(allPositions);
+        return list.stream().limit(100).collect(Collectors.toList());
     }
 
     @GetMapping("api/position/{id}")
     public WarehousePosition getPosition(@PathVariable("id") Long id) {
-        Optional<WarehousePosition> itP = warehouse.findById(id);
-        return itP.orElse(null);
+        Optional<WarehousePosition> itP = dao.getById(id);
+        return itP.orElse(warehouse.findById(id).orElse(null));
     }
 
     @GetMapping("api/search/{query}")
@@ -96,19 +101,31 @@ public class APIController {
             try {
                 long finalCode = decodeEAN(query);
                 System.out.println(finalCode);
-                StreamSupport.stream(allPositions.spliterator(), false)
-                        .filter(p -> (p.getId() == finalCode)).forEach(p -> set.add(new WarehouseSearchView(p)));
-                StreamSupport.stream(allPackages.spliterator(), false)
-                        .filter(p -> (p.getId() == finalCode)).forEach(p -> set.add(new WarehouseSearchView(p)));
+                if (dao.getById(finalCode).isPresent()) {
+                    set.add(new WarehouseSearchView(dao.getById(finalCode).get()));
+                } else if (warehousePackage.existsById(finalCode)) {
+                    set.add(new WarehouseSearchView(warehousePackage.findById(finalCode).get()));
+                }
                 return set;
-            } catch (Exception ignored) {
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         }
-        StreamSupport.stream(allPositions.spliterator(), false)
+        StreamSupport.stream(warehouse.findAll().spliterator(), false)
                 .filter(p -> (p.getMark().equalsIgnoreCase(query) || p.getPacking().equalsIgnoreCase(query)
                         || p.getDiameter().equalsIgnoreCase(query) || p.getPlav().equalsIgnoreCase(query)
                         || p.getPart().equalsIgnoreCase(query) || String.valueOf(p.getId()).equalsIgnoreCase(query)))
                 .forEach(p -> set.add(new WarehouseSearchView(p)));
+        try {
+            if (dao.getById(Long.valueOf(query)).isPresent()) {
+                set.add(new WarehouseSearchView(dao.getById(Long.valueOf(query)).get()));
+            } else if (warehouse.existsById(Long.valueOf(query))) {
+                set.add(new WarehouseSearchView(warehouse.findById(Long.valueOf(query)).get()));
+            } else if (warehousePackage.existsById(Long.valueOf(query))) {
+                set.add(new WarehouseSearchView(warehousePackage.findById(Long.valueOf(query)).get()));
+            }
+        } catch (Exception ignored) {
+        }
         StreamSupport.stream(allPackages.spliterator(), false)
                 .filter(p -> (p.getMark().equalsIgnoreCase(query) || p.getPacking().equalsIgnoreCase(query)
                         || p.getDiameter().equalsIgnoreCase(query) || p.getPlav().equalsIgnoreCase(query)
@@ -120,7 +137,7 @@ public class APIController {
     @GetMapping("api/search/tag/{query}")
     public Set<String> doTagSearch(@PathVariable("query") String query) {
         Set<String> allTags = new HashSet<>();
-        StreamSupport.stream(allPositions.spliterator(), false).forEach(p -> allTags.addAll(p.getAll()));
+        StreamSupport.stream(warehouse.findAll().spliterator(), false).forEach(p -> allTags.addAll(p.getAll()));
         allTags.remove(null);
         allTags.remove("null");
         if (query.trim().length() == 12) {
@@ -139,7 +156,7 @@ public class APIController {
     @GetMapping("api/search/manufacturer/{query}")
     public List<String> doManufacturerSearch(@PathVariable("query") String query) {
         Set<String> allTags = new HashSet<>();
-        StreamSupport.stream(allPositions.spliterator(), false).forEach(p -> {
+        StreamSupport.stream(warehouse.findAll().spliterator(), false).forEach(p -> {
             try {
                 allTags.add(p.getManufacturer());
             } catch (Exception ignored) {
@@ -159,7 +176,7 @@ public class APIController {
     public ArrayList<String> giveMarks() {
         updateTags();
         Set<String> allTags = new HashSet<>();
-        StreamSupport.stream(allPositions.spliterator(), false).forEach(p -> {
+        StreamSupport.stream(warehouse.findAll().spliterator(), false).forEach(p -> {
             try {
                 allTags.add(p.getMark());
             } catch (Exception e) {
@@ -178,7 +195,7 @@ public class APIController {
         updateTags();
         ArrayList<String> diameters = new ArrayList<>();
         ArrayList<String> diameter = new ArrayList<>();
-        StreamSupport.stream(allPositions.spliterator(), false).forEach(p -> {
+        StreamSupport.stream(warehouse.findAll().spliterator(), false).forEach(p -> {
             try {
                 diameters.add(p.getDiameter());
             } catch (Exception e) {
@@ -199,7 +216,8 @@ public class APIController {
         Set<WarehousePosition> wp = new HashSet<>();
         boolean marksEmpty = sortRequest.getMark().isEmpty();
         boolean packingEmpty = sortRequest.getPacking().isEmpty();
-        StreamSupport.stream(allPositions.spliterator(), false).forEach(p -> {
+
+        StreamSupport.stream(warehouse.findAll().spliterator(), false).forEach(p -> {
             try {
                 if ((sortRequest.getMark().contains(p.getMark()) || marksEmpty) &&
                         (sortRequest.getPacking().contains(p.getPacking()) || packingEmpty)
@@ -229,7 +247,7 @@ public class APIController {
             } else {
                 p.setStatus(PositionStatus.In_stock);
             }
-            warehouse.save(p);
+            dao.save(p);
         }
     }
 
@@ -237,7 +255,7 @@ public class APIController {
     public String gost(@RequestParam String mark) {
         mark = mark.trim().replaceAll("–", "-");
         String[] G2246 = ("Св-08ГС,Св-12ГС,Св-08Г2С,Св-08Г2С-О,Св-08Г2С-П,Св-10ГН,Св-08ГСМТ,Св-08ГСМТ-О,Св-10ГСМТ," +
-                "Св-10ГСМТ-О,Св-15ГСТЮЦА," +
+                "Св-10ГСМТ-О ,Св-15ГСТЮЦА, Св-08ГС-П,Св-08ГС-О," +
                 "Св-20ГСТЮА," +
                 "Св-18ХГС," +
                 "Св-10НМА,Св-10НМА-О,Св-08МХ,Св-08ХМ,Св-18ХМА,Св-18ХМА-О,Св-08ХНМ,Св-08ХМФА,Св-08ХМФА-О,Св-10ХМФТ," +
@@ -250,13 +268,16 @@ public class APIController {
                 "Св-12Х13-Т-1,Св-20Х13, " +
                 "Св-06Х14, Св-08Х14ГНТ, Св-10Х17Т, Св-13Х25Т, Св-01Х19Н9, Св-08Х16Н8М2, Св-08Х18Н8Г2Б, Св-07Х18Н9ТЮ, " +
                 "Св-08, Св-08А, Св-08АА, Св-08ГА, Св-10ГА, Св-10Г2, Св-06Х19Н9Т, Св-04Х19Н9С2, Св-04Х19Н9, " +
-                "Св-05Х19Н9Ф3С2, Св-07Х19Н10Б, Св-08Х19Н10Г2Б, Св-06Х19Н10М3Т, Св-08Х19Н10М3Б, СВ-04Х19Н11М3, Св-04Х19Н11М3, Св-05Х20Н9ФБС, Св-06Х20Н11М3ТБ, Св-10Х20Н15, Св-07Х25Н12Г2Т, Св-06Х25Н12ТЮ, Св-07Х25Н13, Св-08Х25Н13БТЮ, Св-13Х25Н18, Св-08Х20Н9Г7Т, Св-08Х21Н10Г6, Св-30Х25Н16Г7, Св-10Х16Н25АМ6, Св-09Х16Н25М6АФ, Св-01Х23Н28М3Д3Т, Св-30Х15Н35В3Б3Т, Св-08Н50, Св-06Х15Н60М15").replaceAll(" ", "").split(",");
+                "Св-05Х19Н9Ф3С2, Св-10ГСМТ, Св-07Х19Н10Б, Св-08Х19Н10Г2Б, Св-06Х19Н10М3Т, Св-08Х19Н10М3Б, " +
+                "СВ-04Х19Н11М3, " +
+                "Св-04Х19Н11М3, Св-05Х20Н9ФБС, Св-06Х20Н11М3ТБ, Св-10Х20Н15, Св-07Х25Н12Г2Т, Св-06Х25Н12ТЮ, Св-07Х25Н13, Св-08Х25Н13БТЮ, Св-13Х25Н18, Св-08Х20Н9Г7Т, Св-08Х21Н10Г6, Св-30Х25Н16Г7, Св-10Х16Н25АМ6, Св-09Х16Н25М6АФ, Св-01Х23Н28М3Д3Т, Св-30Х15Н35В3Б3Т, Св-08Н50, Св-06Х15Н60М15").replaceAll(" ", "").split(",");
         List<String> G2246A = Arrays.asList(G2246);
         String[] G18143 = "12Х18Н10Т, 12Х18Н9, 08Х18Н10, 12Х13, 20Х13, 10Х17Н13М2Т, 12Х13-Т, 12Х13-Т-1".replaceAll(" ", "").split(",");
         List<String> G18143A = Arrays.asList(G18143);
         List<String> TU14_1_997_2012 = Arrays.asList("Св-ХН78Т, Св-07Х16Н6, Св-15Х18Н12С4Ю,Св-04Н3ГМТА, Св-10ГНА, Св-08ГСНТА".replaceAll(" ", "").split(","));
         List<String> TU14_1_4968_91 = Arrays.asList("Св-08Х25Н40М7, Св-08Х25Н60М10, Св-08Х25Н40М7, Св-08Х25Н60М10".replaceAll(" ", "").split(","));
-        List<String> TU14_1_4345_87 = Arrays.asList("Св-10ГН1МА, Св-03ХН3МД, Св-08ГНМ, Св-08ГСНТ, Св-10ГН1МА, Св-03ХН3МД, Св-08ГНМ, Св-08ГСНТ".replaceAll(" ", "").split(","));
+        List<String> TU14_1_4345_87 = Arrays.asList(("Св-10ГН1МА, Св-03ХН3МД, Св-08ГНМ, Св-08ГСНТ, Св-10ГН1МА, " +
+                "Св-03ХН3МД, Св-08ГНМ, Св-08ГСНТ, Св-08ГН2СМД").replaceAll(" ", "").split(","));
         List<String> TU14_130_282_96 = Arrays.asList("Св-04Н3ГМТА, Св-10ГНА, Св-08ГСНТА, Св-04Н3ГМТА, Св-10ГНА, Св-08ГСНТА".replaceAll(" ", "").split(","));
 
         if (G2246A.contains(mark)) {
@@ -323,6 +344,8 @@ public class APIController {
             return "ТУ 14-1-2219-77";
         } else if (mark.equalsIgnoreCase("Св-09Х16Н4Б")) {
             return "ТУ 14-1-1692-76";
+        } else if (mark.equalsIgnoreCase("Св-08ГСНТ-О")) {
+            return "ТУ 1227-027-61668841-2020";
         } else {
             return "-";
         }
@@ -335,18 +358,19 @@ public class APIController {
 
     @GetMapping("api/table")
     public Set<TableView> tableView() {
-        return toTableViews((List<WarehousePosition>) allPositions);
+        return toTableViews((List<WarehousePosition>) warehouse.findAll());
     }
 
     @PostMapping("api/search/plavka")
     public Set<TableView> plavkaTable(@RequestParam String plav) {
-
-        return toTableViews(warehouse.findAllByPlav(plav));
+        List<WarehousePosition> positions = warehouse.findAllByPlav(plav);
+        positions.stream().filter(p -> p.getStatus() != PositionStatus.In_stock).forEach(positions::remove);
+        return toTableViews(positions);
     }
 
     @PostMapping("api/search/plavka/tags")
     public Set<String> plavkaAutocomplete(@RequestParam String plav) {
-        return StreamSupport.stream(allPositions.spliterator(), false)
+        return StreamSupport.stream(warehouse.findAll().spliterator(), false)
                 .filter(p -> p.getPlav().contains(plav))
                 .map(WarehousePosition::getPlav)
                 .collect(Collectors.toSet());
@@ -371,7 +395,7 @@ public class APIController {
                 if (tableViews.contains(tableView)) {
                     for (TableView tableViewFromIterator : tableViews) {
                         if (tableViewFromIterator.compareTo(tableView) == 0) {
-                            tableViewFromIterator.setMass(round((float) (tableView.getMass() + tableViewFromIterator.getMass()), 2));
+                            tableViewFromIterator.setMass(Precision.round((tableView.getMass() + tableViewFromIterator.getMass()), 2));
                         }
                     }
                 } else {
@@ -379,14 +403,14 @@ public class APIController {
                 }
             }
         }
-        tableViews.forEach(p -> p.setMass(round((float) p.getMass(), 2)));
+        tableViews.forEach(p -> p.setMass(Precision.round(p.getMass(), 3)));
         return tableViews;
     }
 
     @GetMapping("api/getById/{id}")
     public ResponseEntity<?> getByID(@PathVariable Long id) {
-        if (warehouse.existsById(id)) {
-            return ResponseEntity.of(warehouse.findById(id));
+        if (dao.getById(id).isPresent()) {
+            return ResponseEntity.of(dao.getById(id));
         } else if (warehousePackage.existsById(id)) {
             return ResponseEntity.of(warehousePackage.findById(id));
         } else {
@@ -405,5 +429,32 @@ public class APIController {
             return ResponseEntity.of(Optional.<Long> empty());
         }
     }
+
+    @PostMapping("api/sklad/getToStock")
+    public ResponseEntity<?> getToStock(@RequestBody GetToStockView view) {
+        ArrayList<Long> positionList = new ArrayList<>();
+        ArrayList<WarehousePackage> packages = new ArrayList<>();
+        ArrayList<WarehousePosition> warehousePositions = new ArrayList<>();
+        List<String> positions =
+                Arrays.asList(view.getToStockValues.split(","));
+        positions.stream().limit(positions.size() - 1).forEach(p -> positionList.add(decodeEAN(p.trim())));
+        positionList.forEach(p -> {
+            if (dao.getById(p).isPresent()) {
+                warehousePositions.add(warehouse.findById(p).get());
+            } else if (warehousePackage.existsById(p)) {
+                warehousePositions.addAll(warehousePackage.findById(p).get().getPositionsList());
+                packages.add(warehousePackage.findById(p).get());
+            }
+        });
+        warehousePositions.forEach(p -> {
+            p.setStatus(PositionStatus.In_stock);
+            System.out.println("Updated " + p.getId());
+            warehouse.save(p);
+        });
+        packages.forEach(p -> p.setStatus(PositionStatus.In_stock));
+        packages.forEach(p -> warehousePackage.save(p));
+        return ResponseEntity.status(200).build();
+    }
+
 
 }

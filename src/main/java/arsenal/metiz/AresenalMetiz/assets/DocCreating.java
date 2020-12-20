@@ -1,11 +1,12 @@
 package arsenal.metiz.AresenalMetiz.assets;
 
-import arsenal.metiz.AresenalMetiz.controllers.MainController;
 import arsenal.metiz.AresenalMetiz.models.WarehousePosition;
-import com.google.zxing.client.j2se.MatrixToImageWriter;
 import org.apache.poi.xwpf.usermodel.*;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.OutputStream;
 import java.util.List;
 import java.util.Set;
 
@@ -70,13 +71,14 @@ public class DocCreating {
             cellsList.get(2).setText(tableView.getPacking());
             cellsList.get(3).setText(String.valueOf(tableView.getMass()));
         }
-        XWPFParagraph paragraph = xwpfDocument.createParagraph();
-        paragraph.setAlignment(ParagraphAlignment.CENTER);
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        MatrixToImageWriter.writeToStream(MainController.generateQRBarcodeImage(String.valueOf(id), 1000), "png", baos);
-        InputStream stream = new ByteArrayInputStream(baos.toByteArray());
-        XWPFRun r = paragraph.createRun();
-        r.addPicture(stream, XWPFDocument.PICTURE_TYPE_PNG, "test.png", 1500000, 1500000);
+        //XWPFParagraph paragraph = xwpfDocument.createParagraph();
+        //paragraph.setAlignment(ParagraphAlignment.CENTER);
+        //ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        //MatrixToImageWriter.writeToStream(MainController.generateQRBarcodeImage(String.valueOf(id), 1000), "png",
+        // baos);
+        //InputStream stream = new ByteArrayInputStream(baos.toByteArray());
+        //XWPFRun r = paragraph.createRun();
+        //r.addPicture(stream, XWPFDocument.PICTURE_TYPE_PNG, "test.png", 1500000, 1500000);
 
         xwpfDocument.write(new FileOutputStream(new File("C:\\Users\\Администратор\\Desktop\\transfer\\" + id
                 + ".docx")));

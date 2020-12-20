@@ -2,8 +2,8 @@ package arsenal.metiz.AresenalMetiz.controllers;
 
 import arsenal.metiz.AresenalMetiz.assets.PositionDataException;
 import arsenal.metiz.AresenalMetiz.models.WarehousePackage;
+import arsenal.metiz.AresenalMetiz.repo.WarehouseDao;
 import arsenal.metiz.AresenalMetiz.repo.WarehousePackageRepo;
-import arsenal.metiz.AresenalMetiz.repo.WarehouseRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,7 +18,7 @@ import java.text.SimpleDateFormat;
 public class WarehouseController {
 
     @Autowired
-    WarehouseRepo warehouseRepo;
+    WarehouseDao warehouseDao;
 
     @Autowired
     WarehousePackageRepo warehousePackageRepo;
@@ -58,7 +58,7 @@ public class WarehouseController {
         WarehousePackage pack = new WarehousePackage();
         for (String id : idsList) {
             try {
-                pack.attach(warehouseRepo.findById(APIController.decodeEAN(id)).get());
+                pack.attach(warehouseDao.getById(APIController.decodeEAN(id)).get());
             } catch (PositionDataException e) {
                 pack.removeAll();
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();

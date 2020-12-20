@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.apache.commons.math3.util.Precision;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.*;
@@ -58,7 +59,7 @@ public class ManufacturePackage {
             throw new PositionDataException();
         }
         positionsList.add(position);
-        mass += position.getMass();
+        this.countWeight();
         position.setPack(this);
     }
 
@@ -85,7 +86,7 @@ public class ManufacturePackage {
     }
 
     private void countWeight() {
-        this.mass = positionsList.stream().mapToDouble(ManufacturePosition::getMass).sum();
+        this.mass = Precision.round(positionsList.stream().mapToDouble(ManufacturePosition::getMass).sum(), 2);
     }
 
 }

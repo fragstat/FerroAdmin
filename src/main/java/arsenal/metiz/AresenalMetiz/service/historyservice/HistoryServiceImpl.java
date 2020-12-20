@@ -4,7 +4,7 @@ import arsenal.metiz.AresenalMetiz.assets.HistoryView;
 import arsenal.metiz.AresenalMetiz.models.DepartureOperation;
 import arsenal.metiz.AresenalMetiz.models.WarehousePosition;
 import arsenal.metiz.AresenalMetiz.repo.DepartureOperationRepo;
-import arsenal.metiz.AresenalMetiz.repo.WarehouseRepo;
+import arsenal.metiz.AresenalMetiz.repo.WarehouseDao;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -16,10 +16,10 @@ import java.util.stream.StreamSupport;
 public class HistoryServiceImpl implements HistoryService {
 
     final DepartureOperationRepo departureOperationDao;
-    final WarehouseRepo dao;
+    final WarehouseDao dao;
 
     @Autowired
-    public HistoryServiceImpl(DepartureOperationRepo departureOperationDao, WarehouseRepo dao) {
+    public HistoryServiceImpl(DepartureOperationRepo departureOperationDao, WarehouseDao dao) {
         this.departureOperationDao = departureOperationDao;
         this.dao = dao;
     }
@@ -35,7 +35,7 @@ public class HistoryServiceImpl implements HistoryService {
 
     @Override
     public HistoryView getHistoryById(Long id) {
-        WarehousePosition position = dao.findById(id).get();
+        WarehousePosition position = dao.getById(id).get();
         return map(departureOperationDao.findByPositionsContains(position));
     }
 

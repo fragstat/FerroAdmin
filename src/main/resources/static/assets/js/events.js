@@ -221,8 +221,12 @@ $('.addManyForm').delegate("#addMany", "click", function () {
                             dataType: 'json',
                             success: function (data, textStatus) {
                                 console.log(data);
-                                products = `<div class="row col-12"><button class="btn btn-outline-info btn-block mb-2" onclick="PrintCode(${data.id}); return false;">Распечатать позиции</button></div>
-                     <div class="row col-12"><button class="btn btn-outline-info btn-block mb-2" onclick="PrintPackage(${data.package}); return false;">Распечатать поддон</button></div>`;
+                                if (data.package != null) {
+                                    products = `<div class="row col-12"><button class="btn btn-outline-info btn-block mb-2" onclick="PrintCode(${data.id}); return false;">Печать всех позиций</button></div>
+                                        <div class="row col-12"><button class="btn btn-outline-info btn-block mb-2" onclick="PrintPackage(${data.package}); return false;">Печать поддона</button></div>`;
+                                } else {
+                                    products = `<div class="row col-12"><button class="btn btn-outline-info btn-block mb-2" onclick="PrintCode(${data.id}); return false;">Печать всех позиций</button></div>`;
+                                }
                                 data.id.forEach(function (id) {
                                     products += card_to_print(id);
                                 })
@@ -434,6 +438,21 @@ $('#controlBtns').delegate('#openShipInput', "click", function () {
       </form>
       <div class="shipContent col-12 row"></div>`);
     bind_ship();
+})
+
+$('#controlBtns').delegate('#getToStock', "click", function () {
+    $('#content').html(
+        `<form name="getToStockForm" class="col-12">
+         <div class="row">
+            <div class="col-9 ui-widget">
+               <input class="form-control col-10" name="getToStockValues" id="getToStockValues"/>
+            </div>
+            <div class="col-3">
+               <button type="button" class="btn btn-outline-info btn-block mb-2 getToStock" id="getToStock">Принять</button>
+            </div>
+         </div>
+      </form>`);
+    bind_getToStock();
 })
 
 $('#controlBtns').delegate('#openShipHistory', "click", function () {
@@ -1117,6 +1136,41 @@ function bind_depart() {
             $(this).val($(this).val() + ', ');
         }
         return false;
+    })
+}
+
+function bind_getToStock() {
+    $('#getToStockValues').keyup(function (event) {
+        elems = document.querySelectorAll('#getToStockValues');
+        if (event.keyCode == 13 && elems.length != 0) {
+            $(this).val($(this).val() + ', ');
+        }
+        return false;
+    })
+
+    $("#content").unbind('click').delegate("#getToStock", 'click', function () {
+        object = {
+            "getToStockValues": $("#getToStockValues").val()
+        }
+        $.ajax(
+            {
+                type: "POST",
+                url: "http://5.200.47.32/api/sklad/getToStock",
+                contentType: 'application/json; carset=utf-8',
+                data: JSON.stringify(object),
+                dataType: 'json',
+                success: function (data, textStatus) {
+                    console.log(data);
+                    $(".successfulGet").fadeIn();
+                    setTimeout(function () {
+                        $(".successfulGet").fadeOut();
+                    }, 2000);
+                },
+                error: function (data, textStatus) {
+                    console.log(data);
+                }
+            }
+        )
     })
 }
 

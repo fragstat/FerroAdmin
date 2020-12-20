@@ -26,16 +26,19 @@ public class ManufactureServiceImpl implements ManufactureService {
 
     final WarehouseDao warehouseDao;
 
+    final IDContainerRepo idContainerRepo;
+
     @Autowired
     public ManufactureServiceImpl(TransferRepo transferRepo, WarehouseRepo warehouseRepo,
                                   WarehousePackageRepo warehousePackageRepo, ManufacturePositionRepo manufacturePositionRepo,
-                                  ManufacturePackageRepo manufacturePackageRepo, WarehouseDao warehouseDao) {
+                                  ManufacturePackageRepo manufacturePackageRepo, WarehouseDao warehouseDao, IDContainerRepo idContainerRepo) {
         this.transferRepo = transferRepo;
         this.warehouseRepo = warehouseRepo;
         this.warehousePackageRepo = warehousePackageRepo;
         this.manufacturePositionRepo = manufacturePositionRepo;
         this.manufacturePackageRepo = manufacturePackageRepo;
         this.warehouseDao = warehouseDao;
+        this.idContainerRepo = idContainerRepo;
     }
 
     @Override
@@ -44,6 +47,7 @@ public class ManufactureServiceImpl implements ManufactureService {
         List<Long> packs = new ArrayList<>();
         List<ManufacturePosition> list = new ArrayList<>();
         Map<String, List<Long>> id = new HashMap<>();
+        ManufacturePackage packages = new ManufacturePackage();
         id.put("package", null);
         for (WarehouseAddPosition p : in) {
             ManufacturePosition position = mapToManufacturePositionWhileCreating(p);
@@ -53,7 +57,6 @@ public class ManufactureServiceImpl implements ManufactureService {
         }
         if (verify(in)) {
             try {
-                ManufacturePackage packages = new ManufacturePackage();
                 packages.attachAll(list);
                 manufacturePackageRepo.save(packages);
                 packs.add(packages.getId());
@@ -68,9 +71,10 @@ public class ManufactureServiceImpl implements ManufactureService {
     }
 
     @Override
-    public void transfer(ManufactureTransferView transferView) {
-        //writeTransfer(transferView);
+    public Long transfer(ManufactureTransferView transferView) {
+        Long id = writeTransfer(transferView);
         transferPositions(transferView);
+        return id;
     }
 
     @Override
@@ -103,19 +107,37 @@ public class ManufactureServiceImpl implements ManufactureService {
     private void transferPositions(ManufactureTransferView transferView) {
         List<Long> positionsId = transferView.getPositions();
         List<ManufacturePosition> positions = new ArrayList<>();
-        positionsId.forEach(p -> positions.add(manufacturePositionRepo.findById(p).get()));
+        positionsId.forEach(p -> {
+            if (manufacturePositionRepo.existsById(p)) {
+                positions.add(manufacturePositionRepo.findById(p).get());
+            } else if (manufacturePackageRepo.existsById(p)) {
+                positions.addAll(manufacturePackageRepo.findById(p).get().getPositionsList());
+            }
+        });
         mapForTransfer(positions);
+
     }
 
-    private void writeTransfer(ManufactureTransferView transferView) {
+    private Long writeTransfer(ManufactureTransferView transferView) {
         List<Long> positionsId = transferView.getPositions();
-        List<ManufacturePosition> positions = new ArrayList<>();
-        positionsId.forEach(p -> positions.add(manufacturePositionRepo.findById(p).get()));
-        for (ManufacturePosition p : positions) {
-
-        }
-        Transfer transfer = new Transfer(transferView.destination, transferView.carPlate, transferView.billNumber, positions);
+        Set<ManufacturePosition> positions = new HashSet<>();
+        positionsId.forEach(p -> {
+            if (manufacturePositionRepo.existsById(p)) {
+                positions.add(manufacturePositionRepo.findById(p).get());
+            } else if (manufacturePackageRepo.existsById(p)) {
+                positions.addAll(manufacturePackageRepo.findById(p).get().getPositionsList());
+            }
+        });
+        Transfer transfer = new Transfer(transferView.destination, transferView.carPlate, transferView.billNumber, new ArrayList<>(positions));
         transferRepo.save(transfer);
+        Double weight = positions.stream().mapToDouble(ManufacturePosition::getMass).sum();
+        try {
+            DocCreating.writeTransferDocument(transferView, transfer.getId(), weight,
+                    toTableViews(new ArrayList<>(positions)));
+            return transfer.getId();
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     private void mapForTransfer(List<ManufacturePosition> positions) {
@@ -151,6 +173,7 @@ public class ManufactureServiceImpl implements ManufactureService {
                 System.out.println(position.getId());
                 WarehousePosition warehousePosition = new WarehousePosition();
                 warehousePosition.setId(position.getId());
+                warehousePosition.setCreatedFrom(-1);
                 warehousePosition.setMark(position.getMark());
                 warehousePosition.setDiameter(position.getDiameter());
                 warehousePosition.setPacking(position.getPacking());
@@ -163,7 +186,9 @@ public class ManufactureServiceImpl implements ManufactureService {
                 warehousePosition.setStatus(PositionStatus.Arriving);
 
                 warehousePositions.add(warehousePosition);
-                warehouseDao.saveWithId(warehousePosition);
+                warehouseDao.save(warehousePosition);
+                manufacturePositionRepo.delete(position);
+
                 System.out.println(warehousePosition.getId());
                 System.out.println(warehouseRepo.existsById(warehousePosition.getId()));
             }
@@ -202,9 +227,9 @@ public class ManufactureServiceImpl implements ManufactureService {
     }
 
     private ManufacturePosition mapToManufacturePositionWhileCreating(WarehouseAddPosition position) {
-        return new ManufacturePosition(position.getMark(), position.getDiameter(), position.getPacking(),
-                position.getComment(), position.getPart(), position.getPlav(), position.getManufacturer(),
-                position.getMass(), PositionStatus.In_stock);
+        return new ManufacturePosition(position.getMark(), position.getDiameter().replaceAll(",", "."),
+                position.getPacking(), position.getComment(), position.getPart(), position.getPlav(),
+                position.getManufacturer(), position.getMass(), PositionStatus.In_stock);
     }
 
     private Set<TableView> toTableViews(List<ManufacturePosition> positions) {

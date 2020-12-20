@@ -82,8 +82,13 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                         .password(encoder.encode("kolokol72"))
                         .roles("SELLER")
                         .build();
+        UserDetails ferro_sklad =
+                User.withUsername("ferroSklad")
+                        .password(encoder.encode("beloretskS"))
+                        .roles("USER")
+                        .build();
 
-        return new InMemoryUserDetailsManager(serg, ekat, ksenia, dir, nekita, kolokoltsev);
+        return new InMemoryUserDetailsManager(serg, ekat, ksenia, dir, nekita, kolokoltsev, ferro_sklad);
     }
 }
 

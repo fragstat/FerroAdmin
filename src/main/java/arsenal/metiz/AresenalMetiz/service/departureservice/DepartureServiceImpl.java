@@ -6,10 +6,7 @@ import arsenal.metiz.AresenalMetiz.assets.MassException;
 import arsenal.metiz.AresenalMetiz.assets.PositionStatus;
 import arsenal.metiz.AresenalMetiz.controllers.APIController;
 import arsenal.metiz.AresenalMetiz.models.*;
-import arsenal.metiz.AresenalMetiz.repo.DepartureActionRepo;
-import arsenal.metiz.AresenalMetiz.repo.DepartureOperationRepo;
-import arsenal.metiz.AresenalMetiz.repo.WarehousePackageRepo;
-import arsenal.metiz.AresenalMetiz.repo.WarehouseRepo;
+import arsenal.metiz.AresenalMetiz.repo.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -19,9 +16,11 @@ import static arsenal.metiz.AresenalMetiz.controllers.APIController.decodeEAN;
 import static arsenal.metiz.AresenalMetiz.controllers.APIController.round;
 
 @Service
-public class DepartureServiceImpl implements DepartureService{
+public class DepartureServiceImpl implements DepartureService {
 
     final WarehouseRepo warehouse;
+
+    final WarehouseDao dao;
 
     final DepartureActionRepo departure;
 
@@ -33,11 +32,12 @@ public class DepartureServiceImpl implements DepartureService{
 
     @Autowired
     public DepartureServiceImpl(WarehouseRepo warehouse, DepartureActionRepo departure,
-                                DepartureOperationRepo departureOperationRepo, WarehousePackageRepo warehousePackage) {
+                                DepartureOperationRepo departureOperationRepo, WarehousePackageRepo warehousePackage, WarehouseDao dao) {
         this.warehouse = warehouse;
         this.departure = departure;
         this.departureOperationRepo = departureOperationRepo;
         this.warehousePackage = warehousePackage;
+        this.dao = dao;
     }
 
     public void updatePositions() {
@@ -57,8 +57,8 @@ public class DepartureServiceImpl implements DepartureService{
         try {
             Arrays.stream(positions).filter(p -> !excepted.contains(p)).forEachOrdered(p -> {
                 long id = decodeEAN(p.trim());
-                if (warehouse.findById(id).isPresent()) {
-                    set.add(warehouse.findById(id).get());
+                if (dao.getById(id).isPresent()) {
+                    set.add(dao.getById(id).get());
                 } else if (warehousePackage.findById(id).isPresent()) {
                     set.addAll(warehousePackage.findById(id).get().getPositionsList());
                 }
@@ -80,8 +80,8 @@ public class DepartureServiceImpl implements DepartureService{
         try {
             Arrays.stream(positions).filter(p -> !excepted.contains(p)).forEachOrdered(p -> {
                 long id = decodeEAN(p.trim());
-                if (warehouse.findById(id).isPresent()) {
-                    set.add(warehouse.findById(id).get());
+                if (dao.getById(id).isPresent()) {
+                    set.add(dao.getById(id).get());
                 } else if (warehousePackage.findById(id).isPresent()) {
                     set.addAll(warehousePackage.findById(id).get().getPositionsList());
                 }
@@ -126,7 +126,7 @@ public class DepartureServiceImpl implements DepartureService{
     }
 
     public WarehousePosition departure(long id, float weight) throws MassException {
-        Optional<WarehousePosition> optional = warehouse.findById(id);
+        Optional<WarehousePosition> optional = dao.getById(id);
         WarehousePosition a;
         if (optional.isPresent()) {
             a = optional.get();
@@ -139,13 +139,13 @@ public class DepartureServiceImpl implements DepartureService{
         if (weight <= a.getMass() && round(a.getMass() - weight, 1) < 0.5) {
             a.setMass(weight);
             a.setStatus(PositionStatus.Departured);
-            warehouse.save(a);
+            dao.update(a);
             removeFromPackage(a);
             return a;
         } else if (weight <= a.getMass()) {
             a.setMass(round(a.getMass() - weight, 2));
             a.setStatus(PositionStatus.In_stock);
-            warehouse.save(a);
+            dao.update(a);
             WarehousePackage pack = a.getPack();
             if (pack != null) {
                 pack.setMass(round((float) (pack.getMass() - weight), 2));
@@ -153,7 +153,7 @@ public class DepartureServiceImpl implements DepartureService{
             WarehousePosition newPosition = new WarehousePosition(a.getMark(), a.getDiameter(), a.getPacking(),
                     a.getComment(), a.getPart(), a.getPlav(), weight, id, a.getManufacturer(),
                     PositionStatus.Departured);
-            warehouse.save(newPosition);
+            dao.save(newPosition);
             removeFromPackage(newPosition);
 
             return newPosition;

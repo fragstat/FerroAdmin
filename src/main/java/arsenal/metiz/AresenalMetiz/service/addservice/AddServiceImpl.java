@@ -7,11 +7,11 @@ import arsenal.metiz.AresenalMetiz.controllers.APIController;
 import arsenal.metiz.AresenalMetiz.models.WarehouseAddPosition;
 import arsenal.metiz.AresenalMetiz.models.WarehousePackage;
 import arsenal.metiz.AresenalMetiz.models.WarehousePosition;
+import arsenal.metiz.AresenalMetiz.repo.IDContainerRepo;
 import arsenal.metiz.AresenalMetiz.repo.WarehouseDao;
 import arsenal.metiz.AresenalMetiz.repo.WarehousePackageRepo;
 import arsenal.metiz.AresenalMetiz.repo.WarehouseRepo;
 import org.apache.commons.math3.util.Precision;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -21,28 +21,39 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 
 @Service
-public class AddServiceImpl implements AddService{
+public class AddServiceImpl implements AddService {
 
-    @Autowired
+    final
+    IDContainerRepo idContainer;
+
+    final
     WarehouseDao dao;
 
-    @Autowired
+    final
     WarehouseRepo warehouse;
 
-    @Autowired
+    final
     WarehousePackageRepo warehousePackage;
+
+    public AddServiceImpl(IDContainerRepo idContainer, WarehouseRepo warehouse, WarehousePackageRepo warehousePackage,
+                          WarehouseDao dao) {
+        this.idContainer = idContainer;
+        this.warehouse = warehouse;
+        this.warehousePackage = warehousePackage;
+        this.dao = dao;
+    }
 
     @Override
     public Long addPosition(String mark, String diameter, String packing, String mass, String comment, String plav,
-                         String part, String manufacturer) {
+                            String part, String manufacturer) {
         if (mark.isEmpty() || diameter.isEmpty() || packing.isEmpty() || mass.isEmpty()) {
             return null;
         }
         String massF = mass.replaceAll(",", ".");
-        WarehousePosition warehousePosition = new WarehousePosition(mark,
+        WarehousePosition warehousePosition = new WarehousePosition(mark.trim().replaceAll("СВ", "Св"),
                 diameter.replaceAll(",", "."), packing, comment, part, plav,
                 Float.valueOf(massF), manufacturer, PositionStatus.In_stock);
-        warehouse.save(warehousePosition);
+        dao.save(warehousePosition);
         APIController.updateTags();
         return warehousePosition.getId();
     }
@@ -59,7 +70,8 @@ public class AddServiceImpl implements AddService{
                 WarehousePosition warehousePosition = new WarehousePosition(p.getMark(), p.getDiameter().replaceAll(",", "."), p.getPacking(),
                         p.getComment(), p.getPart(), p.getPlav(),
                         p.getMass(), p.getManufacturer(), PositionStatus.In_stock);
-                warehouse.save(warehousePosition);
+                warehousePosition = dao.save(warehousePosition);
+                System.out.println(warehousePosition.getId());
                 list.add(warehousePosition);
                 ids.add(warehousePosition.getId());
             }
@@ -119,7 +131,7 @@ public class AddServiceImpl implements AddService{
                 save = true;
             }
             if (save) {
-                warehouse.save(p);
+                dao.update(p);
             }
         });
         pack.setMass(mass.get());
@@ -127,8 +139,8 @@ public class AddServiceImpl implements AddService{
 
     @Override
     public void edit(WarehouseEditPosition edited) {
-        if (warehouse.findById(edited.getId()).isPresent()) {
-            WarehousePosition position = warehouse.findById(edited.getId()).get();
+        if (dao.getById(edited.getId()).isPresent()) {
+            WarehousePosition position = dao.getById(edited.getId()).get();
             position.setMark(edited.getMark());
             position.setDiameter(edited.getDiameter());
             position.setPacking(edited.getPacking());
@@ -137,7 +149,7 @@ public class AddServiceImpl implements AddService{
             position.setManufacturer(edited.getManufacturer());
             position.setMass(edited.getMass());
             position.setComment(edited.getComment());
-            warehouse.save(position);
+            dao.save(position);
             WarehousePackage warehousePack = position.getPack();
             warehousePack.countWeight();
             warehousePackage.save(warehousePack);

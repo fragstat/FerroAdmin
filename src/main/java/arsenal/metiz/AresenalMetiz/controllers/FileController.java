@@ -15,6 +15,7 @@ import java.io.InputStream;
 public class FileController {
 
     public static final String UPLOAD_FOLDER = "C:\\Users\\Администратор\\Desktop\\docs\\";
+    public static final String TRANSFER_FOLDER = "C:\\Users\\Администратор\\Desktop\\transfer\\";
 
     @RequestMapping(value = "/api/files/{file_name}", method = RequestMethod.GET)
     public void getFile(
@@ -23,6 +24,23 @@ public class FileController {
         try {
             // get your file as InputStream
             InputStream is = new FileInputStream(new File(UPLOAD_FOLDER + fileName + ".docx"));
+            // copy it to response's OutputStream
+            org.apache.commons.io.IOUtils.copy(is, response.getOutputStream());
+            response.setContentType("application/vnd.openxmlformats-officedocument.wordprocessingml.document");
+            response.flushBuffer();
+        } catch (IOException ex) {
+            throw new RuntimeException("IOError writing file to output stream");
+        }
+
+    }
+
+    @RequestMapping(value = "/api/transferDocs/{file_name}", method = RequestMethod.GET)
+    public void getTransferFile(
+            @PathVariable("file_name") String fileName,
+            HttpServletResponse response) {
+        try {
+            // get your file as InputStream
+            InputStream is = new FileInputStream(new File(TRANSFER_FOLDER + fileName + ".docx"));
             // copy it to response's OutputStream
             org.apache.commons.io.IOUtils.copy(is, response.getOutputStream());
             response.setContentType("application/vnd.openxmlformats-officedocument.wordprocessingml.document");

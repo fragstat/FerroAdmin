@@ -13,7 +13,7 @@ public interface ManufactureService {
 
     Map<String, List<Long>> doMultipleAdd(List<WarehouseAddPosition> list);
 
-    void transfer(ManufactureTransferView transferView);
+    Long transfer(ManufactureTransferView transferView);
 
     ManufacturePosition getById(Long id);
 

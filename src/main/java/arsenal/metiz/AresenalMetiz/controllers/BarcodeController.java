@@ -1,6 +1,5 @@
 package arsenal.metiz.AresenalMetiz.controllers;
 
-import com.aspose.words.BarcodeParameters;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.client.j2se.MatrixToImageWriter;
 import com.google.zxing.common.BitMatrix;
@@ -16,15 +15,13 @@ import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
 
 @Controller
 public class BarcodeController {
 
     public static BufferedImage generateEAN13BarcodeImage(String barcodeText) throws Exception {
         EAN13Writer barcodeWriter = new EAN13Writer();
-        BitMatrix bitMatrix = barcodeWriter.encode(barcodeText, BarcodeFormat.EAN_13, 350, 100);
+        BitMatrix bitMatrix = barcodeWriter.encode(barcodeText, BarcodeFormat.EAN_13, 300, 100);
         return MatrixToImageWriter.toBufferedImage(bitMatrix);
     }
 

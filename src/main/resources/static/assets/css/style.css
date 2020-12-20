@@ -173,6 +173,19 @@ a:hover {
     padding: 10px;
 }
 
+.transferError {
+    z-index: 11;
+    background-color: rgba(200, 0, 0, 10);
+    border: 1px solid black;
+    border-radius: 5px;
+    width: 25%;
+    position: absolute;
+    margin-top: 35%;
+    margin-left: 50%;
+    display: none;
+    padding: 10px;
+}
+
 .error {
     z-index: 11;
     background-color: rgba(200, 0, 0, 10);
@@ -200,6 +213,19 @@ a:hover {
 }
 
 .successfulShip {
+    z-index: 11;
+    background-color: rgba(200, 0, 0, 10);
+    border: 1px solid black;
+    border-radius: 5px;
+    width: 25%;
+    position: absolute;
+    margin-top: 10px;
+    margin-left: 65%;
+    display: none;
+    padding: 10px;
+}
+
+.successfulGet {
     z-index: 11;
     background-color: rgba(200, 0, 0, 10);
     border: 1px solid black;

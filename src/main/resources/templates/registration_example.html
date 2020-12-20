@@ -24,6 +24,9 @@
     <div class="partError text-center">
         Эта партия уже использована для других значений
     </div>
+    <div class="successfulGet text-center">
+        Приёмка прошла успешно
+    </div>
     <div class="row mt-2">
         <div class="col-md-2 col-sm-12" id="controlBtns">
             <button class="btn btn-outline-info btn-block mb-2 mainBtns addMany" id="addMany"
@@ -49,6 +52,9 @@
             </button>
             <button class="btn btn-outline-info btn-block mb-2 mainBtns hide d-none" id="hide"
                     sec:authorize="hasAnyRole('ROLE_USER', 'ROLE_ADMIN')">Скрыть все
+            </button>
+            <button class="btn btn-outline-info btn-block mb-2 mainBtns getToStock" id="getToStock"
+                    sec:authorize="hasAnyRole('ROLE_USER', 'ROLE_ADMIN')">Приёмка
             </button>
             <button class="btn btn-outline-info btn-block mb-2 mainBtns update" id="update"
                     sec:authorize="hasAnyRole('ROLE_ADMIN')">Редактировать

@@ -67,6 +67,7 @@ public class WarehousePackage {
         positions.forEach(this::attach);
     }
 
+    @Transactional
     public void remove(WarehousePosition position) {
         positionsList.remove(position);
         position.setPack(null);
