@@ -3,7 +3,7 @@ package arsenal.metiz.AresenalMetiz.controllers;
 import arsenal.metiz.AresenalMetiz.assets.DeparturePreProcessRequestView;
 import arsenal.metiz.AresenalMetiz.assets.DeparturePreProcessResponseView;
 import arsenal.metiz.AresenalMetiz.assets.ManufactureTransferView;
-import arsenal.metiz.AresenalMetiz.models.ManufacturePosition;
+import arsenal.metiz.AresenalMetiz.models.Position;
 import arsenal.metiz.AresenalMetiz.models.WarehouseAddPosition;
 import arsenal.metiz.AresenalMetiz.service.manufactureservice.ManufactureService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,7 +39,7 @@ public class ManufactureController {
     }
 
     @GetMapping("api/manufacture/position/{id}")
-    public ManufacturePosition getById(@PathVariable("id") Long id) {
+    public Position getById(@PathVariable("id") Long id) {
         return manufactureService.getById(id);
     }
 

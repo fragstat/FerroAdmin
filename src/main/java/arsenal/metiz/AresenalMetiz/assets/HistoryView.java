@@ -1,6 +1,6 @@
 package arsenal.metiz.AresenalMetiz.assets;
 
-import arsenal.metiz.AresenalMetiz.models.WarehousePosition;
+import arsenal.metiz.AresenalMetiz.models.Position;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
@@ -20,5 +20,5 @@ public class HistoryView {
 
     public float mass;
 
-    public List<WarehousePosition> positions;
+    public List<Position> positions;
 }

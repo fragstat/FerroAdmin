@@ -1,18 +1,12 @@
 package arsenal.metiz.AresenalMetiz.repo;
 
-import arsenal.metiz.AresenalMetiz.models.WarehousePosition;
-
-import java.util.Optional;
+import arsenal.metiz.AresenalMetiz.models.Position;
 
 public interface WarehouseDao {
 
-    WarehousePosition save(WarehousePosition position);
-
-    Optional<WarehousePosition> getById(Long id);
-
-    void update(WarehousePosition position);
+    void update(Position position);
 
     boolean exists(String mark, String diameter, String part, String plav);
 
-    void saveWithId(WarehousePosition position);
+    void saveWithId(Position position);
 }

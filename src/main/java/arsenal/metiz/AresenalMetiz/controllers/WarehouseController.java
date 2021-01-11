@@ -1,9 +1,10 @@
 package arsenal.metiz.AresenalMetiz.controllers;
 
 import arsenal.metiz.AresenalMetiz.assets.PositionDataException;
-import arsenal.metiz.AresenalMetiz.models.WarehousePackage;
-import arsenal.metiz.AresenalMetiz.repo.WarehouseDao;
-import arsenal.metiz.AresenalMetiz.repo.WarehousePackageRepo;
+import arsenal.metiz.AresenalMetiz.assets.PositionLocation;
+import arsenal.metiz.AresenalMetiz.models.Package;
+import arsenal.metiz.AresenalMetiz.repo.PackageRepo;
+import arsenal.metiz.AresenalMetiz.repo.PositionRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,21 +14,27 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.stream.StreamSupport;
 
 @Controller
 public class WarehouseController {
 
     @Autowired
-    WarehouseDao warehouseDao;
+    PositionRepo warehouseDao;
 
     @Autowired
-    WarehousePackageRepo warehousePackageRepo;
+    PackageRepo packageRepo;
 
     DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
 
     @GetMapping("/sklad")
     public String getWarehouse() {
         APIController.updateTags();
+        Iterable<Package> positionList = packageRepo.findAll();
+        StreamSupport.stream(positionList.spliterator(), false).forEach(p -> {
+            p.setLocation(PositionLocation.Solnechnogorsk);
+            packageRepo.save(p);
+        });
         return "registration_example";
     }
 
@@ -55,16 +62,16 @@ public class WarehouseController {
     public ResponseEntity<Long> unionProducts(@RequestParam String ids) {
         APIController.updateTags();
         String[] idsList = ids.split(",");
-        WarehousePackage pack = new WarehousePackage();
+        Package pack = new Package();
         for (String id : idsList) {
             try {
-                pack.attach(warehouseDao.getById(APIController.decodeEAN(id)).get());
+                pack.attach(warehouseDao.findById(APIController.decodeEAN(id)).get());
             } catch (PositionDataException e) {
                 pack.removeAll();
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
             }
         }
-        warehousePackageRepo.save(pack);
+        packageRepo.save(pack);
         return ResponseEntity.ok(pack.getId());
     }
 

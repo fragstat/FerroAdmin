@@ -1,7 +1,7 @@
 package arsenal.metiz.AresenalMetiz.assets;
 
-import arsenal.metiz.AresenalMetiz.models.WarehousePackage;
-import arsenal.metiz.AresenalMetiz.models.WarehousePosition;
+import arsenal.metiz.AresenalMetiz.models.Package;
+import arsenal.metiz.AresenalMetiz.models.Position;
 import lombok.Data;
 
 @Data
@@ -19,7 +19,7 @@ public class WarehouseSearchView {
 
     private SearchType type;
 
-    public WarehouseSearchView(WarehousePosition position) {
+    public WarehouseSearchView(Position position) {
         this.id = position.getId();
         this.createdFrom = position.getCreatedFrom();
         this.mark = position.getMark();
@@ -35,7 +35,7 @@ public class WarehouseSearchView {
         this.type = SearchType.POSITION;
     }
 
-    public WarehouseSearchView(WarehousePackage position) {
+    public WarehouseSearchView(Package position) {
         this.id = position.getId();
         this.createdFrom = -1;
         this.mark = position.getMark();

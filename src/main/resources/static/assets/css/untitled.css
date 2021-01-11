@@ -1,4 +1,50 @@
 .table-bordered {
-  border: 1px solid white;
+    border: 1px solid white;
 }
 
+.main-title {
+    font-family: 'Open Sans';
+    sans-serif;
+    font-size: 75px;
+    color: #000000;
+    margin-top: 30px;
+    margin-right: 0px;
+    height: auto;
+    text-shadow: 2px 0 2px #fed136,
+    0 2px 2px #fed136,
+    -2px 0 2px #fed136,
+    0 -2px 2px #fed136;
+}
+
+.icons-carrier {
+    background-color: #000000;
+    filter: grayscale(0%);
+    height: auto;
+}
+
+@media screen and (max-width: 500px) {
+    .main-title {
+        font-size: 40px;
+    }
+
+    .sub-title {
+        font-size: 33px;
+    }
+
+    .manufacturing-title {
+        font-size: 30px !important;
+    }
+
+    .extra-info {
+        font-size: 12px;
+    }
+
+    .icons-carrier {
+        height: 300px;
+    }
+
+    .g-recaptcha {
+        transform: scale(0.77);
+        transform-origin: 0 0;
+    }
+}

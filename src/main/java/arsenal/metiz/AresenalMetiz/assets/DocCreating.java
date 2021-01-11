@@ -1,6 +1,6 @@
 package arsenal.metiz.AresenalMetiz.assets;
 
-import arsenal.metiz.AresenalMetiz.models.WarehousePosition;
+import arsenal.metiz.AresenalMetiz.models.Position;
 import org.apache.poi.xwpf.usermodel.*;
 
 import java.io.File;
@@ -14,14 +14,14 @@ public class DocCreating {
 
     public static final String UPLOAD_FOLDER = "C:\\Users\\Администратор\\Desktop\\docs\\";
 
-    public static String createDoc(List<WarehousePosition> list, long id) {
+    public static String createDoc(List<Position> list, long id) {
         System.out.println("Writing document...");
         try {
             // создаем модель docx документа,
             // к которой будем прикручивать наполнение (колонтитулы, текст)
             XWPFDocument docxModel = new XWPFDocument();
             String filename = String.valueOf(id);
-            for (WarehousePosition p : list) {
+            for (Position p : list) {
                 XWPFParagraph bodyParagraph = docxModel.createParagraph();
                 bodyParagraph.setAlignment(ParagraphAlignment.LEFT);
                 XWPFRun paragraphConfig = bodyParagraph.createRun();

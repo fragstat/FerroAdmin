@@ -1,7 +1,6 @@
 package arsenal.metiz.AresenalMetiz.assets;
 
-import arsenal.metiz.AresenalMetiz.models.ManufacturePosition;
-import arsenal.metiz.AresenalMetiz.models.WarehousePosition;
+import arsenal.metiz.AresenalMetiz.models.Position;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.springframework.lang.NonNull;
@@ -14,14 +13,7 @@ public class TableView implements Comparable<TableView> {
     private String packing;
     private double mass;
 
-    public TableView(WarehousePosition position) {
-        this.mark = position.getMark();
-        this.diameter = Float.parseFloat(position.getDiameter().replaceAll(",", "."));
-        this.packing = position.getPacking();
-        this.mass = position.getMass();
-    }
-
-    public TableView(ManufacturePosition position) {
+    public TableView(Position position) {
         this.mark = position.getMark();
         this.diameter = Float.parseFloat(position.getDiameter().replaceAll(",", "."));
         this.packing = position.getPacking();

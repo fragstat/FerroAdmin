@@ -1,5 +1,6 @@
 package arsenal.metiz.AresenalMetiz.controllers;
 
+import arsenal.metiz.AresenalMetiz.assets.HistoryStepView;
 import arsenal.metiz.AresenalMetiz.assets.HistoryView;
 import arsenal.metiz.AresenalMetiz.service.historyservice.HistoryService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,5 +30,10 @@ public class HistoryController {
     @GetMapping("/departure/{id}")
     HistoryView getHistoryDeparture(@PathVariable("id") Long id) {
         return service.getHistoryByDepartureId(id);
+    }
+
+    @GetMapping("/allById/{id}")
+    List<HistoryStepView> getHistoryStepsById(@PathVariable("id") Long id) {
+        return service.getAllHistorySteps(id);
     }
 }

@@ -5,6 +5,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.List;
 
 @Entity
@@ -20,13 +22,24 @@ public class Transfer {
     String destination;
     String carPlate;
     String billNumber;
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    List<ManufacturePosition> positions;
+    String departureDate;
+    String arrivalDate;
 
-    public Transfer(String destination, String carPlate, String billNumber, List<ManufacturePosition> positions) {
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    List<Position> positions;
+
+
+    public Transfer(String destination, String carPlate, String billNumber, List<Position> positions) {
+        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm");
         this.destination = destination;
         this.carPlate = carPlate;
         this.billNumber = billNumber;
         this.positions = positions;
+        this.departureDate = sdf.format(Calendar.getInstance().getTime());
+    }
+
+    public void setArrivalDate() {
+        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm");
+        this.arrivalDate = sdf.format(Calendar.getInstance().getTime());
     }
 }

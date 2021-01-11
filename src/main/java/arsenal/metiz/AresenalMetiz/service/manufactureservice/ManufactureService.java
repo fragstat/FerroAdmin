@@ -3,7 +3,7 @@ package arsenal.metiz.AresenalMetiz.service.manufactureservice;
 import arsenal.metiz.AresenalMetiz.assets.DeparturePreProcessRequestView;
 import arsenal.metiz.AresenalMetiz.assets.DeparturePreProcessResponseView;
 import arsenal.metiz.AresenalMetiz.assets.ManufactureTransferView;
-import arsenal.metiz.AresenalMetiz.models.ManufacturePosition;
+import arsenal.metiz.AresenalMetiz.models.Position;
 import arsenal.metiz.AresenalMetiz.models.WarehouseAddPosition;
 
 import java.util.List;
@@ -15,7 +15,7 @@ public interface ManufactureService {
 
     Long transfer(ManufactureTransferView transferView);
 
-    ManufacturePosition getById(Long id);
+    Position getById(Long id);
 
     DeparturePreProcessResponseView departurePreProcess(DeparturePreProcessRequestView view);
 }

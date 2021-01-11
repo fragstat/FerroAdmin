@@ -26,7 +26,7 @@
                 "setTimeout('step2()', 10);}\n" +
                 "function step2(){window.print();window.close()}\n" +
                 "</script></head>" + "<body onload='step1()'>\n" +
-                "<img width='350' height='100' style='margin: auto;' src='" + source + `' />
+                "<img width='280' height='100' style='margin: auto;' src='" + source + `' />
             <p style='font-size: 20px; margin: 0'>Производитель: ${data.manufacturer}</p>
             <p style='font-size: 20px; margin: 0'>Марка: ${data.mark}</p>
             <p style='font-size: 20px; margin: 0'>${gost}</p>

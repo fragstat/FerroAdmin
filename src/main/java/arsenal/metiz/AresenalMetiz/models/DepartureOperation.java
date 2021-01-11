@@ -26,7 +26,7 @@ public class DepartureOperation {
     private float weight;
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<WarehousePosition> positions;
+    private List<Position> positions;
 
     private String customer;
 
@@ -34,13 +34,13 @@ public class DepartureOperation {
 
     private String date;
 
-    public DepartureOperation(String bill, String customer, String username, List<WarehousePosition> positions) {
+    public DepartureOperation(String bill, String customer, String username, List<Position> positions) {
         this.bill = bill;
         this.customer = customer;
         this.username = username;
         this.positions = positions;
         this.date = dateFormat.format(Calendar.getInstance().getTime());
-        this.weight = (float) positions.stream().mapToDouble(WarehousePosition::getMass).sum();
+        this.weight = (float) positions.stream().mapToDouble(Position::getMass).sum();
     }
 }
 

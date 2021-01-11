@@ -1,5 +1,6 @@
 package arsenal.metiz.AresenalMetiz.models;
 
+import arsenal.metiz.AresenalMetiz.assets.PositionLocation;
 import arsenal.metiz.AresenalMetiz.assets.PositionStatus;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import lombok.AllArgsConstructor;
@@ -19,7 +20,7 @@ import java.util.List;
 @AllArgsConstructor
 @Getter
 @Setter
-public class WarehousePosition {
+public class Position {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -39,15 +40,17 @@ public class WarehousePosition {
 
     private PositionStatus status;
 
+    private PositionLocation location;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JsonBackReference
-    private WarehousePackage pack;
+    private Package pack;
 
-    public WarehousePosition() {
+    public Position() {
     }
 
-    public WarehousePosition(String mark, String diameter, String packing, String comment, String part, String plav,
-                             Float mass, String manufacturer, PositionStatus status) {
+    public Position(String mark, String diameter, String packing, String comment, String part, String plav,
+                    Float mass, String manufacturer, PositionStatus status, PositionLocation location) {
         this.mark = mark;
         this.diameter = diameter;
         this.packing = packing;
@@ -59,10 +62,11 @@ public class WarehousePosition {
         this.createdFrom = -1;
         this.manufacturer = manufacturer.trim().toUpperCase();
         this.status = status;
+        this.location = location;
     }
 
-    public WarehousePosition(String mark, String diameter, String packing, String comment, String part, String plav,
-                             Float mass, long createdFrom, String manufacturer, PositionStatus status) {
+    public Position(String mark, String diameter, String packing, String comment, String part, String plav,
+                    Float mass, long createdFrom, String manufacturer, PositionStatus status, PositionLocation location) {
         this.mark = mark;
         this.diameter = diameter;
         this.packing = packing;
@@ -74,6 +78,7 @@ public class WarehousePosition {
         this.createdFrom = createdFrom;
         this.manufacturer = manufacturer;
         this.status = status;
+        this.location = location;
     }
 
     public List<String> getAll() {

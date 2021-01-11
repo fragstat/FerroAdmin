@@ -721,7 +721,7 @@ function CodetoPrint(id) {
                 "setTimeout('step2()', 10);}\n" +
                 "function step2(){window.print();window.close()}\n" +
                 "</scri" + "pt></head><body onload='step1()'>\n" +
-                "<img width='350' height='100' style='margin: auto;' src='" +
+                "<img width='280' height='100' style='margin: auto;' src='" +
                 `http://5.200.47.32/api/code/${id}` + `' />
             <p style='font-size: 20px; margin: 0'>Производитель: ${data.manufacturer}</p>
             <p style='font-size: 20px; margin: 0'>Марка: ${data.mark}</p>
@@ -784,7 +784,7 @@ function PackageToPrint(id) {
                 "setTimeout('step2()', 10);}\n" +
                 "function step2(){window.print();window.close()}\n" +
                 "</scri" + "pt></head><body onload='step1()'>\n" +
-                "<img width='350' height='100' style='margin: auto;' src='" +
+                "<img width='280' height='100' style='margin: auto;' src='" +
                 `http://5.200.47.32/api/code/${id}` + `' />
             <p style='font-size: 20px; margin: 0'>Производитель: ${data.manufacturer}</p>
             <p style='font-size: 20px; margin: 0'>Марка: ${data.mark}</p>
