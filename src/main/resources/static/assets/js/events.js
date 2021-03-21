@@ -139,7 +139,7 @@ $('.addManyForm').delegate("#addMany", "click", function () {
                     for (i = 0; i < elems.length; i++) {
                         checked.push(elems[i].id);
                         elems[i].checked = false;
-                        $(`#${elems[i].id + 'Many'}`).prop('disabled', 'true');
+                        $(`#${elems[i].id + 'Many'}`).prop('disabled', true);
                     }
                     console.log(checked);
                     products = '';
@@ -490,7 +490,7 @@ $('#controlBtns').delegate("#addMany", "click", function () {
     for (i = 0; i < elems.length; i++) {
         if (elems[i].id !== "mass") {
             elems[i].checked = true;
-            $(`#${elems[i].id + 'Many'}`).prop('disabled', 'false');
+            $(`#${elems[i].id + 'Many'}`).prop('disabled', false);
         }
     }
 });
