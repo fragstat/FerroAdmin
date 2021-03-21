@@ -1,0 +1,55 @@
+<!doctype html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org"
+      xmlns:sec="https://www.thymeleaf.org/thymeleaf-extras-springsecurity3">
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1, shrink-to-fit=no" name="viewport">
+    <link crossorigin="anonymous" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+          integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" rel="stylesheet">
+    <link href="assets/css/style.css" rel="stylesheet">
+    <link href="assets/css/jquery-ui.css" rel="stylesheet">
+    <title>Поддон</title>
+    <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    </head>
+    <body>
+        <div class="row shipm-form">
+            <div class="col-md-12">
+                <h5 class="text-center row"><span class="col-11">Отгрузка</span><span class="close-block col-1">&#9746;</span></h5>
+                <form class="shipmentForm text-center" name="shipmentForm">
+                    <div class="row text-center">
+                        <label for="mass">Вес отгрузки</label>
+                        <input type="text" class="form-control" name="mass" id="mass">
+                    </div>
+                    <div class="row">
+                        <label for="contrAgent">Контр. агент</label>
+                        <input type="text" class="form-control" name="contrAgent" id="contrAgent">
+                    </div>
+                    <div class="row">
+                        <label for="account">Счет</label>
+                        <input type="text" class="form-control" name="account" id="account">
+                    </div>
+                </form>
+                <button class="btn btn-outline-success btn-block" style="margin-top: 5px;" id="ship">Отгрузить</button>
+            </div>
+        </div>
+        <div class="container-fluid">
+            <header th:insert="blocks/warehouse_header :: header"></header>
+            <div class="row mt-2">
+                <div class="error text-center">
+                    Проверьте данные
+                </div>
+                <div class="print">
+                </div>
+                <div class="col-md-2 col-12" id="controlBtns">
+                    <button sec:authorize="hasAnyRole('ROLE_USER', 'ROLE_ADMIN')" class="btn btn-outline-info btn-block mb-2" id="shipment">Отгрузка</button>
+                    <button sec:authorize="hasAnyRole('ROLE_USER', 'ROLE_ADMIN')" class="btn btn-outline-info btn-block mb-2" id="print">Распечатать штрих-код</button>
+                    <button sec:authorize="hasAnyRole('ROLE_USER', 'ROLE_ADMIN')" class="btn btn-outline-info btn-block mb-2" id="printAll">Распечатать все позиции</button>
+                </div>
+                <div class="info row col-md-10 col-12 m-0"></div>
+            </div>
+        </div>
+        <script src="assets/js/strings.js"></script>
+        <script src="assets/js/package.js"></script>
+    </body>
+</html>
