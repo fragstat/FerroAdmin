@@ -1,4 +1,4 @@
-package arsenal.metiz.AresenalMetiz;
+package arsenal.metiz.AresenalMetiz.assets;
 
 import com.google.zxing.*;
 import com.google.zxing.client.j2se.BufferedImageLuminanceSource;

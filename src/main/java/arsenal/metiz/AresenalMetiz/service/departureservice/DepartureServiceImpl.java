@@ -4,11 +4,14 @@ import arsenal.metiz.AresenalMetiz.assets.DocCreating;
 import arsenal.metiz.AresenalMetiz.assets.IdToPrint;
 import arsenal.metiz.AresenalMetiz.assets.MassException;
 import arsenal.metiz.AresenalMetiz.assets.PositionStatus;
+import arsenal.metiz.AresenalMetiz.assets.SDeparture;
 import arsenal.metiz.AresenalMetiz.models.Package;
 import arsenal.metiz.AresenalMetiz.models.*;
 import arsenal.metiz.AresenalMetiz.repo.*;
 import org.apache.commons.math3.util.Precision;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -77,6 +80,7 @@ public class DepartureServiceImpl implements DepartureService {
     public Set<Position> doMultipleDeparture(String request, String except) {
         String[] positions = request.split(",");
         Set<Position> set = new HashSet<>();
+        Set<Position> ex_set = new HashSet<>();
         List<String> excepted = Arrays.asList(except.split(","));
         try {
             Arrays.stream(positions).filter(p -> !excepted.contains(p)).forEachOrdered(p -> {
@@ -87,10 +91,18 @@ public class DepartureServiceImpl implements DepartureService {
                     set.addAll(warehousePackage.findById(id).get().getPositionsList());
                 }
             });
+            excepted.forEach(p -> {
+                long id = decodeEAN(p.trim());
+                if (warehouse.existsById(id)) {
+                    ex_set.add(warehouse.findById(id).get());
+                } else if (warehousePackage.findById(id).isPresent()) {
+                    ex_set.addAll(warehousePackage.findById(id).get().getPositionsList());
+                }
+            });
         } catch (Exception ignored) {
-
         }
-        set.removeIf(p -> p.getStatus().equals(PositionStatus.Departured));
+        set.removeIf(p -> !p.getStatus().equals(PositionStatus.In_stock));
+        set.removeAll(ex_set);
         updatePositions();
         return set;
     }
@@ -98,7 +110,6 @@ public class DepartureServiceImpl implements DepartureService {
     @Override
     public IdToPrint confirmDeparture(MDeparture departure) {
         List<SimpleDepartureObj> data = departure.getData();
-        Integer amount = data.size();
         String username = "not available";
         String contrAgent = departure.getContrAgent();
         List<Long> listToPrint = new ArrayList<>();
@@ -118,12 +129,33 @@ public class DepartureServiceImpl implements DepartureService {
                 return null;
             }
         }
-        var operation = operationByPositions(contrAgent, listToDoc, account, username);
+        DepartureOperation operation = operationByPositions(contrAgent, listToDoc, account, username);
         updatePositions();
         /*
         TODO отображение общих весов в документе
          */
         return new IdToPrint(listToPrint, DocCreating.createDoc(listToDoc, operation.getOperation_id()));
+    }
+
+    @Override
+    public ResponseEntity<?> soloDeparture(SDeparture departure) {
+        SimpleDepartureObj obj = departure.data;
+        ArrayList<Position> listToDoc = new ArrayList<>();
+        try {
+            Position afterDeparture = departure(obj.getId(), obj.getWeight());
+            if (afterDeparture != null) {
+                if (obj.getId() != afterDeparture.getId()) {
+                    listToDoc.add(afterDeparture);
+                }
+            }
+        } catch (MassException e) {
+            e.printStackTrace();
+            return null;
+        }
+        operationByPositions(departure.contrAgent, listToDoc, departure.account,
+                "not avaliable");
+        updatePositions();
+        return ResponseEntity.status(HttpStatus.OK).build();
     }
 
     public Position departure(long id, float weight) throws MassException {

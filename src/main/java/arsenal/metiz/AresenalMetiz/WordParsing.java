@@ -1,5 +1,6 @@
 package arsenal.metiz.AresenalMetiz;
 
+import arsenal.metiz.AresenalMetiz.assets.QRCode;
 import arsenal.metiz.AresenalMetiz.models.ParsedCertificate;
 import org.apache.poi.openxml4j.opc.OPCPackage;
 import org.apache.poi.xwpf.usermodel.*;
