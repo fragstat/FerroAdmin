@@ -123,6 +123,12 @@ $('.addManyForm').delegate("#addMany", "click", function () {
         "diameter": diameter,
         "plav": plav
     };
+    elems = $("input:checkbox[name=addManyFormCheck]");
+    for (i = 0; i < elems.length; i++) {
+        if (elems[i].id != "mass")
+            elems[i].checked = true;
+        $(`#${elems[i].id + 'Many'}`).prop('disabled', 'false');
+    }
     $.ajax(
         {
             type: 'POST',
