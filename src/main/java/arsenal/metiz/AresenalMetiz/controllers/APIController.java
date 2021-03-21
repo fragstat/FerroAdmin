@@ -1,6 +1,10 @@
 package arsenal.metiz.AresenalMetiz.controllers;
 
-import arsenal.metiz.AresenalMetiz.assets.*;
+import arsenal.metiz.AresenalMetiz.assets.GetToStockView;
+import arsenal.metiz.AresenalMetiz.assets.PositionLocation;
+import arsenal.metiz.AresenalMetiz.assets.PositionStatus;
+import arsenal.metiz.AresenalMetiz.assets.TableView;
+import arsenal.metiz.AresenalMetiz.assets.WarehouseSearchView;
 import arsenal.metiz.AresenalMetiz.models.Package;
 import arsenal.metiz.AresenalMetiz.models.Position;
 import arsenal.metiz.AresenalMetiz.models.SortRequest;
@@ -15,9 +19,23 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.TreeSet;
+import java.util.Vector;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -130,7 +148,6 @@ public class APIController {
         allTags.remove(null);
         allTags.remove("null");
         if (query.trim().length() == 12) {
-            System.out.println("Inside");
             try {
                 long finalCode = decodeEAN(query);
                 System.out.println(finalCode);
@@ -217,7 +234,7 @@ public class APIController {
             } catch (Exception ignored) {
             }
         });
-        wp.removeIf(p -> p.getStatus().equals(PositionStatus.Departured));
+        wp.removeIf(p -> !p.getStatus().equals(PositionStatus.In_stock));
         return wp;
     }
 
@@ -243,7 +260,9 @@ public class APIController {
     @GetMapping("api/gost")
     public String gost(@RequestParam String mark) {
         mark = mark.trim().replaceAll("–", "-");
-        String[] G2246 = ("Св-08ГС,Св-12ГС,Св-08Г2С,Св-08Г2С-О,Св-08Г2С-П,Св-10ГН,Св-08ГСМТ,Св-08ГСМТ-О,Св-10ГСМТ," +
+        String[] G2246 = ("Св-08ГС, Св-10Г2-О, Св-08Х19Н9Ф2С2, Св-08ХМ-О,Св-12ГС,Св-08Г2С,Св-08Г2С-О,Св-08Г2С-П,Св-10ГН,Св-08ГСМТ," +
+                "Св-08ГСМТ-О," +
+                "Св-10ГСМТ," +
                 "Св-10ГСМТ-О ,Св-15ГСТЮЦА, Св-08ГС-П,Св-08ГС-О," +
                 "Св-20ГСТЮА," +
                 "Св-18ХГС," +
@@ -263,7 +282,8 @@ public class APIController {
         List<String> G2246A = Arrays.asList(G2246);
         String[] G18143 = "12Х18Н10Т, 12Х18Н9, 08Х18Н10, 12Х13, 20Х13, 10Х17Н13М2Т, 12Х13-Т, 12Х13-Т-1".replaceAll(" ", "").split(",");
         List<String> G18143A = Arrays.asList(G18143);
-        List<String> TU14_1_997_2012 = Arrays.asList("Св-ХН78Т, Св-07Х16Н6, Св-15Х18Н12С4Ю,Св-04Н3ГМТА, Св-10ГНА, Св-08ГСНТА".replaceAll(" ", "").split(","));
+        List<String> TU14_1_997_2012 = Arrays.asList(("Св-ХН78Т, Св-07Х16Н6, Св-15Х18Н12С4Ю,Св-04Н3ГМТА, Св-10ГНА, " +
+                "Св-08ГСНТА, Св-15Х18Н12С4ТЮ-ТО").replaceAll(" ", "").split(","));
         List<String> TU14_1_4968_91 = Arrays.asList("Св-08Х25Н40М7, Св-08Х25Н60М10, Св-08Х25Н40М7, Св-08Х25Н60М10".replaceAll(" ", "").split(","));
         List<String> TU14_1_4345_87 = Arrays.asList(("Св-10ГН1МА, Св-03ХН3МД, Св-08ГНМ, Св-08ГСНТ, Св-10ГН1МА, " +
                 "Св-03ХН3МД, Св-08ГНМ, Св-08ГСНТ, Св-08ГН2СМД").replaceAll(" ", "").split(","));
@@ -335,6 +355,17 @@ public class APIController {
             return "ТУ 14-1-1692-76";
         } else if (mark.equalsIgnoreCase("Св-08ГСНТ-О")) {
             return "ТУ 1227-027-61668841-2020";
+        } else if (mark.equalsIgnoreCase("12Х18Н10Т-В")) {
+            return "ТУ 3-1002-77";
+        } else if (mark.equalsIgnoreCase("12Х18Н10Т-ВО")) {
+            return "ТУ 3-1002-77";
+        } else if (mark.equalsIgnoreCase("12Х18Н10Т-Н")) {
+            return "ТУ 3-1002-77";
+        } else if (mark.equalsIgnoreCase("Св-04Н2ГСТА") || mark.equalsIgnoreCase("Св-04Н3ГСМТА")
+                || mark.equalsIgnoreCase("Св-04Н3ГСМТА-Ш")) {
+            return "ТУ 14-1-4345-2017";
+        } else if (mark.equalsIgnoreCase("Св-04Х20Н10Г2Б")) {
+            return "ТУ 14-1-4591-89";
         } else {
             return "-";
         }
@@ -447,6 +478,7 @@ public class APIController {
         packages.forEach(p -> warehousePackage.save(p));
         Transfer transfer = transferRepo.getTransferByPositionsContains(warehousePositions.get(0)).get();
         transfer.setArrivalDate();
+        transferRepo.save(transfer);
         return ResponseEntity.status(200).build();
     }
 

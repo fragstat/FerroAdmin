@@ -186,6 +186,47 @@ $(document).ready(function () {
             }
         }
     )
+    $.ajax(
+        {
+            type: "GET",
+            url: `http://ferro-trade.ru/api/history/allById/${id}`,
+            dataType: 'json',
+            success: function (data, textStatus) {
+                console.log(data);
+                table = `
+            <table class="table">
+            <tbody>
+                <tr>
+                <th>#</th>
+                <th>Тип</th>
+                <th>Дата</th>
+                <th>Место</th>
+                </tr>`;
+                for (i = 0; i < data.length; i++) {
+                    type = data[i].type
+                    place = data[i].place
+                    if (data[i].type == 'Adding')
+                        type = 'Добавление'
+                    else if (data[i].type == 'Departure')
+                        type = 'Отгрузка'
+                    if (data[i].place == 'Solnechnogorsk')
+                        place = 'Солнечногорск'
+                    table += `
+                    <tr>
+                    <td>${i + 1}</td>
+                    <td>${type}</td>
+                    <td>${data[i].date}</td>
+                    <td>${place}</td>
+                    </tr>`;
+                }
+                table += '</tbody></table>';
+                $(".history").html(table);
+            },
+            error: function (data, textStatus) {
+                console.log(data);
+            }
+        }
+    )
 })
 
 $('#controlBtns').delegate('#print', 'click', function () {

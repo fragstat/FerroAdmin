@@ -104,11 +104,12 @@ public class WordParsingController {
                     if (iterable.isEmpty()) {
                         model.addAttribute("ps", ps);
                         redirectAttributes.addFlashAttribute("ps", ps);
-                        f.renameTo(new File(REGISTERED + f.getName()));
+                        boolean rename = f.renameTo(new File(REGISTERED + f.getName()));
+                        System.out.println("Сертификат зарегестрирован вручную!! " + ps.getId() + " " + rename);
                         return "redirect:/admin/upload/check";
                     } else {
                         Database.getInstance().Upload(ps.getDBCertificate(), ps.getQr());
-                        System.out.println("Сертификат зарегестрирован автоматически!!");
+                        System.out.println("Сертификат зарегестрирован автоматически!! " + ps.getId());
                         autoRegisteredCertificatesRepository.save(new AutoRegisteredCertificate(ps.getId()));
                         f.renameTo(new File(REGISTERED + f.getName()));
                     }
@@ -121,11 +122,12 @@ public class WordParsingController {
                     if (iterable.isEmpty()) {
                         model.addAttribute("ps", ps);
                         redirectAttributes.addFlashAttribute("ps", ps);
-                        f.renameTo(new File(REGISTERED + f.getName()));
+                        boolean rename = f.renameTo(new File(REGISTERED + f.getName()));
+                        System.out.println("Сертификат зарегестрирован вручную!! " + ps.getId() + " " + rename + " " + f.getName());
                         return "redirect:/admin/upload/check";
                     } else {
                         Database.getInstance().Upload(ps.getDBCertificate(), ps.getQr());
-                        System.out.println("Сертификат зарегестрирован автоматически!!");
+                        System.out.println("Сертификат зарегестрирован автоматически!! " + ps.getId());
                         autoRegisteredCertificatesRepository.save(new AutoRegisteredCertificate(ps.getId()));
                         f.renameTo(new File(REGISTERED + f.getName()));
                     }

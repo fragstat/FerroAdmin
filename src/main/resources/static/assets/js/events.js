@@ -349,6 +349,7 @@ $('#controlBtns').delegate('#all', "click", function () {
       <div class="packing"></div>
    </form>
    <button class="btn btn-outline-success btn-block" id="filtrate" type="button">Отфильтровать</button>
+   <button class="btn btn-outline-success btn-block" id="nullFilter" type="button">Очистить фильтр</button>
    </div>`);
     fillFilter();
     $("#switcher").prop('checked', true);
@@ -492,35 +493,89 @@ $('#controlBtns').delegate("#update", "click", function () {
 });
 
 $('#content').delegate("#switcher", "click", function () {
-    if (!$("#switcher")[0].checked) {
-        $.ajax(
-            {
+    selected_marks = [];
+    selected_packings = [];
+    $("input:checkbox[name=markType]:checked").each(function () {
+        selected_marks.push($(this).val());
+    });
+    $("input:checkbox[name=packingType]:checked").each(function () {
+        selected_packings.push($(this).val());
+    });
+    min = $("#slider").slider("values", 0);
+    max = $("#slider").slider("values", 1);
+    object = {
+        "mark": selected_marks,
+        "packing": selected_packings,
+        "DL": min,
+        "DM": max,
+        "table": $("#switcher")[0].checked
+    }
+    if (selected_marks.length == 0 && selected_packings.length == 0 && min == $("#slider").slider("option", 'min')
+        && max == $("#slider").slider("option", 'max')) {
+        if (!$("#switcher")[0].checked) {
+            $.ajax({
                 type: 'GET',
-                url: 'http://5.200.47.32:80/api/table',
+                url: `http://5.200.47.32:80/api/table`,
+                contentType: "application/json; charset=utf-8",
+                success: function (data, textStatus) {
+                    products = table(data);
+                    $("#cards").html(products);
+                },
+                error: function (data, textStatus) {
+                    console.log(data);
+                }
+            });
+        } else {
+            $.ajax(
+                {
+                    type: 'GET',
+                    url: 'http://5.200.47.32:80/api/positions',
+                    dataType: 'json',
+                    success: function (data, textStatus) {
+                        console.log(data);
+                        products = cards(data);
+                        $('#cards').html(products);
+                    }
+                }
+            )
+        }
+    } else {
+        if (!$("#switcher")[0].checked) {
+            $.ajax({
+                type: 'POST',
+                url: `http://5.200.47.32:80/api/filter/table`,
+                contentType: "application/json; charset=utf-8",
+                data: JSON.stringify(object),
                 dataType: 'json',
+                cache: false,
                 success: function (data, textStatus) {
                     console.log(data);
                     products = table(data);
-                    $('#cards').html(products);
+                    $("#cards").html(products);
+                },
+                error: function (data, textStatus) {
+                    console.log(data);
                 }
-            }
-        )
-    }
-    else {
-        products = "";
-        $.ajax(
-            {
-                type: 'GET',
-                url: 'http://5.200.47.32:80/api/positions',
+            });
+        } else {
+            products = "";
+            $.ajax({
+                type: 'POST',
+                url: `http://5.200.47.32:80/api/filter`,
+                contentType: "application/json; charset=utf-8",
+                data: JSON.stringify(object),
                 dataType: 'json',
-                success: function(data, textStatus)
-                {
+                cache: false,
+                success: function (data, textStatus) {
                     console.log(data);
                     products = cards(data);
-                    $('#cards').html(products);
+                    $("#cards").html(products);
+                },
+                error: function (data, textStatus) {
+                    console.log(data);
                 }
-            }
-        )
+            })
+        }
     }
 });
 
@@ -936,7 +991,8 @@ function fillFilter(){
         "К300",
         "Д300",
         "К415",
-        "Д415"]
+        "Пруток(600мм)",
+        "Пруток(1000мм)"]
     $.ajax({
         type: 'GET',
         url: `http://5.200.47.32:80/api/position/marks`,
@@ -1037,11 +1093,48 @@ function fillFilter(){
                     products = cards(data);
                     $("#cards").html(products);
                 },
-                error: function(data, textStatus)
-                {
+                error: function (data, textStatus) {
                     console.log(data);
                 }
             })
+        }
+    })
+
+    $(".filter").delegate("#nullFilter", 'click', function () {
+        $("input:checkbox[name=markType]").each(function () {
+            $(this).prop('checked', false);
+        });
+        $("input:checkbox[name=packingType]").each(function () {
+            $(this).prop('checked', false);
+        });
+        $("#slider").slider('values', 0, $("#slider").slider("option", "min"));
+        $("#slider").slider('values', 1, $("#slider").slider("option", "max"));
+        if (!$("#switcher")[0].checked) {
+            $.ajax({
+                type: 'GET',
+                url: `http://5.200.47.32:80/api/table`,
+                contentType: "application/json; charset=utf-8",
+                success: function (data, textStatus) {
+                    products = table(data);
+                    $("#cards").html(products);
+                },
+                error: function (data, textStatus) {
+                    console.log(data);
+                }
+            });
+        } else {
+            $.ajax(
+                {
+                    type: 'GET',
+                    url: 'http://5.200.47.32:80/api/positions',
+                    dataType: 'json',
+                    success: function (data, textStatus) {
+                        console.log(data);
+                        products = cards(data);
+                        $('#cards').html(products);
+                    }
+                }
+            )
         }
     })
 }

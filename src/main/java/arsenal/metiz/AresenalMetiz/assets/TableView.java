@@ -17,7 +17,11 @@ public class TableView implements Comparable<TableView> {
         this.mark = position.getMark();
         this.diameter = Float.parseFloat(position.getDiameter().replaceAll(",", "."));
         this.packing = position.getPacking();
-        this.mass = position.getMass();
+        try {
+            this.mass = position.getMass();
+        } catch (NullPointerException e) {
+            System.out.println(position.getId());
+        }
     }
 
     public int compareTo(@NonNull TableView t) {

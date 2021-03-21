@@ -1,7 +1,6 @@
 package arsenal.metiz.AresenalMetiz.controllers;
 
 import arsenal.metiz.AresenalMetiz.assets.PositionDataException;
-import arsenal.metiz.AresenalMetiz.assets.PositionLocation;
 import arsenal.metiz.AresenalMetiz.models.Package;
 import arsenal.metiz.AresenalMetiz.repo.PackageRepo;
 import arsenal.metiz.AresenalMetiz.repo.PositionRepo;
@@ -14,7 +13,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.stream.StreamSupport;
 
 @Controller
 public class WarehouseController {
@@ -30,11 +28,6 @@ public class WarehouseController {
     @GetMapping("/sklad")
     public String getWarehouse() {
         APIController.updateTags();
-        Iterable<Package> positionList = packageRepo.findAll();
-        StreamSupport.stream(positionList.spliterator(), false).forEach(p -> {
-            p.setLocation(PositionLocation.Solnechnogorsk);
-            packageRepo.save(p);
-        });
         return "registration_example";
     }
 
