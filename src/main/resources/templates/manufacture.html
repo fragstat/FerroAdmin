@@ -1,0 +1,44 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link href="assets/css/style.css" rel="stylesheet">
+    <link href="assets/css/jquery-ui.css" rel="stylesheet">
+    <title>Форма заполнения</title>
+    <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <script>
+    </script>
+  </head>
+  <body>
+    <div class="container-fluid">
+      <header th:insert="blocks/manufacture_header :: header"></header>
+      <div class="print">
+        <a href="#" onclick="PrintImage(ssyl); return false;">PRINT</a>
+      </div>
+      <div class="error text-center">
+        Проверьте данные
+      </div>
+      <div class="transferError text-center">
+        Произошла ошибка при трансфере
+      </div>
+      <div class="partError text-center">
+        Эта партия уже использована для других значений
+      </div>
+      <div class="row mt-2">
+        <div class="col-md-2 col-12" id="controlBtns">
+          <button class="btn btn-outline-info btn-block mb-2 mainBtns addMany" id="addMany">Добавить несколько</button>
+          <button class="btn btn-outline-info btn-block mb-2 mainBtns transfer" id="transfer">Трансфер</button>
+        </div>
+        <div class="row col-md-10 col-12" id="content">
+        </div>
+      </div>
+
+    </div>
+    <script src="assets/js/onStart.js"></script>
+    <script src="assets/js/manufactureStrings.js"></script>
+    <script src="assets/js/manufactureEvents.js"></script>
+  </body>
+</html>
