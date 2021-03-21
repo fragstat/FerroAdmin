@@ -249,6 +249,15 @@ $('.shipm-form').delegate('#ship', 'click', function () {
     account = parseInt(document.forms.shipmentForm.account.value, 10);
     console.log(input);
     mass = parseFloat(input);
+    SDobj = {
+        'id': id,
+        'weight': mass
+    }
+    obj = {
+        SDobj,
+        'contrAgent': contrAgent,
+        'account': account
+    }
     console.log(`http://5.200.47.32/api/position/departure?id=${id}&weight=${mass}&contrAgent=${contrAgent}&account=${account}`);
     if (isNaN(mass)) {
         console.log('error');
@@ -259,7 +268,9 @@ $('.shipm-form').delegate('#ship', 'click', function () {
     } else {
         $.ajax({
             type: 'POST',
-            url: `http://5.200.47.32/api/position/departure?id=${id}&weight=${mass}&contrAgent=${contrAgent}&account=${account}`,
+            url: `http://5.200.47.32/api/position/departure`,
+            contentType: "application/json; charset=utf-8",
+            data: JSON.stringify(obj),
             dataType: 'json',
             success: function (data, textStatus) {
                 /*console.log(data);
