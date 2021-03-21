@@ -488,9 +488,10 @@ $('#controlBtns').delegate("#addMany", "click", function () {
     $('.addManyForm').css('display', 'inline');
     elems = $("input:checkbox[name=addManyFormCheck]");
     for (i = 0; i < elems.length; i++) {
-        if (elems[i].id != "mass")
+        if (elems[i].id !== "mass") {
             elems[i].checked = true;
-        $(`#${elems[i].id + 'Many'}`).prop('disabled', 'false');
+            $(`#${elems[i].id + 'Many'}`).prop('disabled', 'false');
+        }
     }
 });
 
