@@ -249,12 +249,12 @@ $('.shipm-form').delegate('#ship', 'click', function () {
     account = parseInt(document.forms.shipmentForm.account.value, 10);
     console.log(input);
     mass = parseFloat(input);
-    SDobj = {
+    data = {
         'id': id,
         'weight': mass
     }
     obj = {
-        SDobj,
+        data,
         'contrAgent': contrAgent,
         'account': account
     }
