@@ -64,12 +64,14 @@ $(document).ready(function () {
             url: `http://5.200.47.32/api/position/${id}`,
             dataType: 'json',
             success: function (data, textStatus) {
-                if (data.status == 'Departured')
+                if (data.status === 'Departured')
                     $('#shipment').hide();
-                if (data.status == 'Departured')
+                if (data.status === 'Departured')
                     status = 'Отгружен';
-                else if (data.status == 'In_stock')
+                else if (data.status === 'In_stock')
                     status = 'На складе';
+                else if (data.status === 'Arriving')
+                    status = 'Прибывает';
                 if (data.createdFrom <= 0) {
                     table = `
                     <table class="table">
