@@ -202,7 +202,7 @@ $('.addManyForm').delegate("#addMany", "click", function () {
                             queryMass = parseFloat(queryMass.replaceAll(',', '.'));
                             if (queryMark === '' || queryMark == null || queryDiameter === '' || queryDiameter == null ||
                                 queryPacking === '' || queryPacking == null
-                                || queryPlav === '' || quryPlav == null || queryPart === '' || quryPart == null ||
+                                || queryPlav === '' || queryPlav == null || queryPart === '' || queryPart == null ||
                                 queryMass === '' || queryMass == null
                                 || queryManufacturer === '' || queryManufacturer == null)
                                 nullCheck = true;
