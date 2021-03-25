@@ -41,10 +41,12 @@ function table_for_history(data){
 function cards(data) {
     products = '';
     data.forEach(function (elem) {
-        if (elem.status == 'Departured')
+        if (elem.status === 'Departured')
             status = 'Отгружен';
-        else if (elem.status == 'In_stock')
+        else if (elem.status === 'In_stock')
             status = 'На складе';
+        else if (elem.status === 'Arriving')
+            status = 'Прибывает';
         if (elem.comment == null || elem.comment == "") {
             products = products + card_without_comm(elem.id, elem.mark, elem.diameter, elem.packing, elem.part, elem.plav, elem.mass, status);
         }
@@ -126,7 +128,7 @@ function card_depart(id, mark, diameter, packing, part, plav, mass, status) {
             <p class="card-text">Партия: ${part}</p>
             <p class="card-text">Плавка: ${plav}</p>
             <p class="card-text">Вес: ${mass}</p>
-            <p class="card-text">Статус: ${status}</p>,
+            <p class="card-text">Статус: ${status}</p>
             <label for="mass">Масса отгрузки</label>
             <input class="mass form-control col-10" name="mass" id="mass ${id}"/>
         </div>

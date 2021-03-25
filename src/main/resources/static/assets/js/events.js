@@ -139,7 +139,7 @@ $('.addManyForm').delegate("#addMany", "click", function () {
                     for (i = 0; i < elems.length; i++) {
                         checked.push(elems[i].id);
                         elems[i].checked = false;
-                        $(`#${elems[i].id + 'Many'}`).prop('disabled', 'true');
+                        $(`#${elems[i].id + 'Many'}`).prop('disabled', true);
                     }
                     console.log(checked);
                     products = '';
@@ -158,6 +158,7 @@ $('.addManyForm').delegate("#addMany", "click", function () {
                         $("#regMany").prop("disabled", true);
                         elems = $('.productInput');
                         objs = [];
+                        nullCheck = false;
                         for (i = 0; i < elems.length; i++) {
                             if (checked.includes('mark'))
                                 queryMark = mark;
@@ -199,6 +200,12 @@ $('.addManyForm').delegate("#addMany", "click", function () {
                             else
                                 queryComment = $(elems[i].lastChild).find('#comment')[0].value;
                             queryMass = parseFloat(queryMass.replaceAll(',', '.'));
+                            if (queryMark === '' || queryMark == null || queryDiameter === '' || queryDiameter == null ||
+                                queryPacking === '' || queryPacking == null
+                                || queryPlav === '' || queryPlav == null || queryPart === '' || queryPart == null ||
+                                queryMass === '' || queryMass == null
+                                || queryManufacturer === '' || queryManufacturer == null)
+                                nullCheck = true;
                             console.log(queryMark, queryDiameter, queryPacking, queryPart, queryPlav, queryMass, queryManufacturer, queryComment);
                             obj = {
                                 "mark": queryMark,
@@ -213,30 +220,40 @@ $('.addManyForm').delegate("#addMany", "click", function () {
                             objs.push(obj);
                         }
                         console.log(objs);
-                        $.ajax({
-                            type: 'POST',
-                            url: `http://5.200.47.32:80/api/multipleAdd`,
-                            contentType: "application/json; charset=utf-8",
-                            data: JSON.stringify(objs),
-                            dataType: 'json',
-                            success: function (data, textStatus) {
-                                console.log(data);
-                                if (data.package != null) {
-                                    products = `<div class="row col-12"><button class="btn btn-outline-info btn-block mb-2" onclick="PrintCode(${data.id}); return false;">Печать всех позиций</button></div>
-                                        <div class="row col-12"><button class="btn btn-outline-info btn-block mb-2" onclick="PrintPackage(${data.package}); return false;">Печать поддона</button></div>`;
-                                } else {
-                                    products = `<div class="row col-12"><button class="btn btn-outline-info btn-block mb-2" onclick="PrintCode(${data.id}); return false;">Печать всех позиций</button></div>`;
+                        if (!nullCheck) {
+                            $.ajax({
+                                type: 'POST',
+                                url: `http://5.200.47.32:80/api/multipleAdd`,
+                                contentType: "application/json; charset=utf-8",
+                                data: JSON.stringify(objs),
+                                dataType: 'json',
+                                success: function (data, textStatus) {
+                                    console.log(data);
+                                    if (data.package != null) {
+                                        products = `<div class="row col-12"><button class="btn btn-outline-info btn-block mb-2" onclick="PrintCode(${data.id}); return false;">Печать всех позиций</button></div>
+                                            <div class="row col-12"><button class="btn btn-outline-info btn-block mb-2" onclick="PrintPackage(${data.package}); return false;">Печать поддона</button></div>`;
+                                    } else {
+                                        products = `<div class="row col-12"><button class="btn btn-outline-info btn-block mb-2" onclick="PrintCode(${data.id}); return false;">Печать всех позиций</button></div>`;
+                                    }
+                                    data.id.forEach(function (id) {
+                                        products += card_to_print(id);
+                                    })
+                                    $("#regMany").prop("disabled", false);
+                                    $("#content").html(products);
                                 }
-                                data.id.forEach(function (id) {
-                                    products += card_to_print(id);
-                                })
-                                $("#regMany").prop("disabled", false);
-                                $("#content").html(products);
-                            }
-                        })
+                            })
+                        } else {
+                            $(".valueError").css('display', 'inline');
+                            setTimeout(function () {
+                                $('.valueError').fadeOut();
+                            }, 2000);
+                        }
                     })
                 } else {
                     $(".partError").css('display', 'inline');
+                    setTimeout(function () {
+                        $('.partError').fadeOut();
+                    }, 2000);
                 }
             }
         })
@@ -486,6 +503,13 @@ $('#controlBtns').delegate("#add", "click", function () {
 $('#controlBtns').delegate("#addMany", "click", function () {
     console.log("dlkf ");
     $('.addManyForm').css('display', 'inline');
+    elems = $("input:checkbox[name=addManyFormCheck]");
+    for (i = 0; i < elems.length; i++) {
+        if (elems[i].id !== "mass") {
+            elems[i].checked = true;
+            $(`#${elems[i].id + 'Many'}`).prop('disabled', false);
+        }
+    }
 });
 
 $('#controlBtns').delegate("#update", "click", function () {
@@ -604,10 +628,12 @@ $('#content').delegate('#search', "click", function () {
             success: function (data, textStatus) {
                 console.log(data);
                 data.forEach(function (elem) {
-                    if (elem.status == 'Departured')
+                    if (elem.status === 'Departured')
                         status = 'Отгружен';
-                    else if (elem.status == 'In_stock')
+                    else if (elem.status === 'In_stock')
                         status = 'На складе';
+                    else if (elem.status === 'Arriving')
+                        status = 'Прибывает'
                     if (elem.type == 'POSITION') {
                         if (elem.comment == null || elem.comment == "") {
                             products = products + card_without_comm(elem.id, elem.mark, elem.diameter, elem.packing, elem.part, elem.plav, elem.mass.toFixed(2), status);
@@ -665,10 +691,12 @@ $('#content').delegate('#ship', 'click', function(){
             console.log(data);
             products = '';
             data.forEach(function(elem){
-                if (elem.status == 'Departured')
+                if (elem.status === 'Departured')
                     status = 'Отгружен';
-                else if (elem.status == 'In_stock')
+                else if (elem.status === 'In_stock')
                     status = 'На складе';
+                else if (elem.status === 'Arriving')
+                    status = 'Прибывает'
                 products += card_depart(elem.id, elem.mark, elem.diameter, elem.packing, elem.part, elem.plav, elem.mass, status);
             })
             form = `<div class="row departureForm col-12">
@@ -919,10 +947,11 @@ function sorting() {
                 }
                 products = ``;
                 data.forEach(function (product) {
-                    if (product.status == 'Departured')
+                    if (product.status === 'Departured')
                         status = 'Отгружен';
-                    else if (product.status == 'In_stock')
+                    else if (product.status === 'In_stock')
                         status = 'На складе';
+                    else if (product.status === 'Arriving')
                     if (product.comment == null || product.comment == "") {
                         products = products + card_without_comm(product.id, product.mark, product.diameter, product.packing, product.part, product.plav, product.mass, status);
                     } else {

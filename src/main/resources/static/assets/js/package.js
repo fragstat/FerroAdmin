@@ -153,10 +153,12 @@ $(document).ready(function(){
             dataType: 'json',
             success: function(data, textStatus)
             {
-                if (data.status == 'Departured')
+                if (data.status === 'Departured')
                     status = 'Отгружен';
-                else if (data.status == 'In_stock')
+                else if (data.status === 'In_stock')
                     status = 'На складе';
+                esle if (data.status === 'Arriving')
+                    status = 'Прибывает';
                 table = `<div class='col-12'>
                 <table class="table">
                 <tbody>
@@ -212,10 +214,12 @@ $(document).ready(function(){
                     </tr></tbody></table></div><div class="col-12 row m-0">`;
                 }
                 data.positionsList.forEach(function(product){
-                    if (product.status == 'Departured')
+                    if (product.status === 'Departured')
                         status = 'Отгружено';
-                    else if (product.status == 'In_stock')
+                    else if (product.status === 'In_stock')
                         status = 'На складе';
+                    esle if (product.status === 'Arriving')
+                        status = 'Прибывает';
                     if (product.comment == '' || product.comment == null)
                         table += card_without_comm(product.id, product.mark, product.diameter, product.packing, product.part, product.plav, product.mass, status);
                     else

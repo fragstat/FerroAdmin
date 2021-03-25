@@ -42,10 +42,12 @@ function table(data){
     products = '';
     data.forEach(function(elem)
     {
-       if (elem.status == 'Departured')
+       if (elem.status === 'Departured')
           status = 'Отгружен';
-       else if (elem.status == 'In_stock')
+       else if (elem.status === 'In_stock')
           status = 'На складе';
+       else if (elem.status === 'Arriving')
+           status = 'Прибывает';
        if (elem.comment == null || elem.comment == ""){
           products = products + card_without_comm(elem.id, elem.mark, elem.diameter, elem.packing, elem.part, elem.plav, elem.mass, status);
        }
